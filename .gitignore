@@ -1,2 +1,6 @@
 *.jar
-.project
+*.DS_Store
+
+MASTER\ SHAVADOOP\ JAR/bin/*
+
+SLAVE\ SHAVADOOP\ JAR/bin/*
