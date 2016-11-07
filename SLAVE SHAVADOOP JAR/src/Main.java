@@ -20,7 +20,7 @@ public class Main {
 		List<String> lignes;
 		
 		// path to write files
-		Path umx_output = Paths.get(dossier+"Umx/Um0");
+		Path umx_output = Paths.get(dossier+"Umx/Um0.txt");
 		
 		// try to read file
 		try {
