@@ -11,32 +11,8 @@ public class Main {
 
 	public static void main(String[] args) {
 		
-		// on va lancer l'algo sur le fichier dont le nom est passé en argument
-		System.out.println("Lancement de l'algo sur le fichier " + args[0]);
 		
-		String dossier = "/cal/homes/lbinet/workspace/Sys_distribue/";
-		
-		Path input_file = Paths.get(dossier+args[0]);
-		List<String> lignes;
-		Integer i = 0;
-		try {
-			// on lit le fichier ligne par ligne
-			lignes = Files.readAllLines(input_file, Charset.forName("UTF-8"));
-			for (String ligne :lignes ){
-				// on affiche la ligne
-				System.out.println(ligne);
-				// on l'écrit dans un fichier nommé Sx_<num ligne>
-				Path sx = Paths.get(dossier+"/Sx/Sx"+i+".txt");
-				Files.write(sx, Arrays.asList(ligne), Charset.forName("UTF-8"));
-				i += 1;
-				
-			}
-			
-		} catch (IOException e2) {
-			// TODO Auto-generated catch block
-			e2.printStackTrace();
-		}
-
+		// INITIALISATION : VERIFICATION DES MACHINES UP
 		List<String> machines;
 		ArrayList<TestConnectionSSH> listeTests = new ArrayList<TestConnectionSSH>();
 
@@ -80,24 +56,58 @@ public class Main {
 			e.printStackTrace();
 		}
 		
-		if (liste_machines_ok != null) {
-            ArrayList<LaunchSlaveShavadoop> slaves = new ArrayList<LaunchSlaveShavadoop>();
-            for (String machine : liste_machines_ok) {
-                LaunchSlaveShavadoop slave = new LaunchSlaveShavadoop(machine,
-                        "cd workspace/Sys_distribue;java -jar SLAVESHAVADOOP.jar", 20);
-                slave.start();
-                slaves.add(slave);
-            }
-            for (LaunchSlaveShavadoop slave : slaves) {
-                try {
-                    slave.join();
-                } catch (InterruptedException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-            }
-            System.out.println("tout est fini");
-        }
+		// LANCEMENT PROCEDURE
+		System.out.println("Lancement de l'algo sur le fichier " + args[0]);
+		String dossier = "/cal/homes/lbinet/workspace/Sys_distribue/";
+		
+		Path input_file = Paths.get(dossier+args[0]);
+		List<String> lignes;
+		Integer i = 0;
+		// 1ERE ETAPE : SPLITING ET ENVOI AUX MACHINES
+		try {
+			
+			// on lit le fichier ligne par ligne
+			lignes = Files.readAllLines(input_file, Charset.forName("UTF-8"));
+			for (String ligne :lignes ){
+				// on affiche la ligne
+				System.out.println(ligne);
+				// on l'écrit dans un fichier nommé S<num ligne>
+				Path sx = Paths.get(dossier+"/Sx/S"+i);
+				Files.write(sx, Arrays.asList(ligne), Charset.forName("UTF-8"));
+				i += 1;
+			}
+			// idéalement on réalise un scp pour envoyer les fichiers (ici on triche)
+			
+			// on lance la procédure s'il y a des machines
+			// TODO répartir si machines < jobs
+			if (liste_machines_ok != null) {
+	            ArrayList<LaunchSlaveShavadoop> slaves = new ArrayList<LaunchSlaveShavadoop>();
+	            for (int k = 0; k < lignes.size(); k++) {
+					String machine = liste_machines_ok.get(k);
+	            	LaunchSlaveShavadoop slave = new LaunchSlaveShavadoop(machine,
+	                        "cd workspace/Sys_distribue;java -jar SLAVESHAVADOOP.jar S"+k, 20);
+	                slave.start();
+	                slaves.add(slave);
+				}
+	            
+	            for (LaunchSlaveShavadoop slave : slaves) {
+	                try {
+	                    slave.join();
+	                } catch (InterruptedException e) {
+	                    // TODO Auto-generated catch block
+	                    e.printStackTrace();
+	                }
+	            }
+	            System.out.println("PROCEDURE TERMINEE");
+	        }
+			
+		} catch (IOException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		}
+		
+		
+		
     }
 
 

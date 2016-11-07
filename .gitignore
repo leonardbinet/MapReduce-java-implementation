@@ -1,6 +1,7 @@
 *.jar
 *.DS_Store
-
+/Sx/*
+/Umx/*
 MASTER\ SHAVADOOP\ JAR/bin/*
 
 SLAVE\ SHAVADOOP\ JAR/bin/*
