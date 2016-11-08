@@ -30,12 +30,13 @@ public class Main {
 		algo1.set_machines(liste_machines_ok);
 		algo1.sendSplitOrderToMachines();
 		// on récupère le dictionnaire
-		HashMap<String,String> umx_machine = algo1.getUmxMachineHM();
-		System.out.println(umx_machine.toString());
-		
-		// on récupère les réponses
-		HashMap<String, ArrayList<String>> response_dict = algo1.getResponses();
-		System.out.println("Nos réponses : \n"+ response_dict.toString());
+		HashMap<String,String> umx_machine = algo1.getUmxMachineDict();
+		System.out.println("Notre dictionnaire Umx - machine: \n"+umx_machine.toString());
+		// on génère l'index inversé
+		algo1.reverse_index();
+		// on récupère les key - [Umx]
+		HashMap<String, ArrayList<String>> key_umxs = algo1.getKeyUmxs();
+		System.out.println("Notre dictionnaire key - [Umx] : \n"+ key_umxs.toString());
 		
 		
     }

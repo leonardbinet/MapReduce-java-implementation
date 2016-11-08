@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Algo1SplitAndSend {
 
@@ -19,13 +20,15 @@ public class Algo1SplitAndSend {
 	private String output_folder;
 	private ArrayList<String> sx_list;
 	private ArrayList<String> machine_list;
-	private HashMap<String, String> umx_machines_dict;
-	private HashMap<String, ArrayList<String>> response_dict;
-	
+	private HashMap<String, String> umx_machine;
+	private HashMap<String, ArrayList<String>> machine_keys;
+	private HashMap<String, ArrayList<String>> umx_keys;
+	private HashMap<String, ArrayList<String>> key_umxs;
+
 	public Algo1SplitAndSend(Path input_file, String output_folder){
 		this.input_file = input_file;
 		this.output_folder = output_folder;
-		this.response_dict = new HashMap<String, ArrayList<String>>();
+		
 	}
 	
 	public void split() throws IOException{
@@ -61,27 +64,32 @@ public class Algo1SplitAndSend {
 		// idéalement on réalise un scp pour envoyer les fichiers (ici on triche)
 		// on lance la procédure s'il y a des machines
 		// TODO répartir si machines < jobs
-		HashMap<String,String> umx_machine = new HashMap<String,String>();
-		ArrayList<String> liste_machines_ok = this.machine_list;
-		ArrayList<String> sx_list = this.sx_list;
 		
-		if (liste_machines_ok != null) {
+		// Initialisation de notre dictionnaire (qui trace ce que l'on a envoyé)
+		this.umx_machine = new HashMap<String,String>();
+		// Initialisation de notre dictionnaire de réponse
+		this.machine_keys = new HashMap<String, ArrayList<String>>();
+		this.umx_keys = new HashMap<String, ArrayList<String>>();
+
+		if (this.machine_list != null) {
             ArrayList<LaunchSlaveShavadoop> slaves = new ArrayList<LaunchSlaveShavadoop>();
             for (int k = 0; k < sx_list.size(); k++) {
-				String machine = liste_machines_ok.get(k);
-				umx_machine.put("Um"+k, machine);
+            	// on prend la kième machine
+				String machine = this.machine_list.get(k);
+				this.umx_machine.put("Um"+k, machine);
 				System.out.println("Envoi de S"+k+" à la machine "+machine+" devant nous renvoyer Um"+k);
             	LaunchSlaveShavadoop slave = new LaunchSlaveShavadoop(machine,
                         "cd workspace/Sys_distribue;java -jar SLAVESHAVADOOP.jar S"+k, 20);
                 slave.start();
                 slaves.add(slave);
 			}
-            for (LaunchSlaveShavadoop slave : slaves) {
+            for (int k = 0; k < sx_list.size(); k++) {
                 try {
+                	LaunchSlaveShavadoop slave = slaves.get(k);
                     slave.join();
                     // on attend que le thread soit terminé pour ajouter au dictionnaire
-                    this.response_dict.put(slave.getMachine(), slave.get_response());
-                    
+                    this.machine_keys.put(slave.getMachine(), slave.get_response());
+                    this.umx_keys.put("Um"+k, slave.get_response());
                 } catch (InterruptedException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
@@ -90,14 +98,40 @@ public class Algo1SplitAndSend {
             
             System.out.println("Algo1 terminé");
         }
-		this.umx_machines_dict = umx_machine;
 	}
-	public HashMap<String, String> getUmxMachineHM(){
-		return this.umx_machines_dict;
+	public HashMap<String, String> getUmxMachineDict(){
+		return this.umx_machine;
 	}
 	
 	public HashMap<String, ArrayList<String>> getResponses(){
-		return this.response_dict;
+		return this.machine_keys;
 	};
+	
+	public void reverse_index(){
+		// INPUT
+		//          Umx - [keys]
+		// TRANSFORM
+		// =>       Umx - key // Umx - key // etc
+		// =>       key - [Umxs]
+		// OUTPUT
+		//          key - [Umxs]
+		
+		HashMap<String,ArrayList<String>> inversed = new HashMap<String,ArrayList<String>>(this.umx_keys.size());
+	    
+		for(Map.Entry<String, ArrayList<String>> entry : this.umx_keys.entrySet()) {
+	        for(String key : entry.getValue()) {    // entry.getValue() est ArrayList<String> (keys)         
+	            if(!inversed.containsKey(key)) { 
+	                inversed.put(key,new ArrayList<String>());
+	            }
+	            inversed.get(key).add(entry.getKey());
+	        } 
+	    }
+		this.key_umxs = inversed;
+	}
+	
+	public HashMap<String,ArrayList<String>> getKeyUmxs(){
+		return this.key_umxs;
+		
+	}
 
 }
