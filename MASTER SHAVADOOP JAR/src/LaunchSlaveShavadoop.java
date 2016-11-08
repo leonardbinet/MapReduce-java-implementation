@@ -26,7 +26,7 @@ public class LaunchSlaveShavadoop extends Thread{
 	}
 	
 	public void affiche(String texte){
-		System.out.println("[TestConnectionSSH "+machine+"] "+texte);
+		System.out.println("[SSH "+machine+"] "+texte);
 	}
 	
 	public void run(){

@@ -26,6 +26,10 @@ elif [ $1 = "run" ]
 then
     echo "Lancement du script: run"
     ssh telecom "ssh -o StrictHostKeyChecking=no "$machine" 'cd workspace/Sys_distribue && java -jar MASTERSHAVADOOP.jar Input.txt'"
+elif [ $1 = "runslave" ]
+then
+    echo "Lancement du script: "
+    ssh telecom "ssh -o StrictHostKeyChecking=no "$machine" 'cd workspace/Sys_distribue && java -jar SLAVESHAVADOOP.jar modeUMXSMX car Sm1 Um1 Um2'"
 
 elif [ $1 = "purge" ]
 then

@@ -10,23 +10,27 @@ public class Main {
 		
 		
 		// INITIALISATION : VERIFICATION DES MACHINES UP
+		System.out.println("---------------------------------\nINITIALISATION\n---------------------------------");
 		CheckMachinesUp checkMachines = new CheckMachinesUp("liste_machines.txt", "liste_machines_OK.txt");
 		checkMachines.test_Machines_Up();
 		ArrayList<String> liste_machines_ok = checkMachines.get_Machines_Up();
 		// TODO vérifier fonctionnement path
 		
 		// LANCEMENT PROCEDURE
+		System.out.println("---------------------------------\nLANCEMENT\n---------------------------------");
 		System.out.println("Lancement de l'algorithme principal sur le fichier " + args[0]);
 		String dossier = "/cal/homes/lbinet/workspace/Sys_distribue/";
 		
 		
 		// 1ERE ETAPE : MASTER : split 
+		System.out.println("---------------------------------\nSPLIT\n---------------------------------");
 		Path input_file = Paths.get(dossier+args[0]);
-		Algo1SplitAndSend algo1 = new Algo1SplitAndSend(input_file,dossier+"/Sx/");
+		AlgoMaster algo1 = new AlgoMaster(input_file,dossier);
 		algo1.split();
 		// ArrayList<String> sx_list = algo1.getListSxNames();
 		
 		// MASTER : envoi aux slaves l'ordre de mapper
+		System.out.println("---------------------------------\nMAP\n---------------------------------");
 		algo1.set_machines(liste_machines_ok);
 		algo1.sendSplitOrderToMachines();
 		// on récupère le dictionnaire
@@ -38,8 +42,20 @@ public class Main {
 		HashMap<String, ArrayList<String>> key_umxs = algo1.getKeyUmxs();
 		System.out.println("Notre dictionnaire key - [Umx] : \n"+ key_umxs.toString());
 		
+		// MASTER : shuffling: envoi des ordres de shuffling aux slaves
+		System.out.println("---------------------------------\nSHUFFLE\n---------------------------------");
 		
-    }
+		// MASTER : reduce: envoi des ordres de reduce aux slaves
+		System.out.println("---------------------------------\nREDUCE\n---------------------------------");
+		algo1.prepare_job_dispatch();
+		algo1.sendReduceOrder();
+		
+		// MASTER : écriture des résultats
+		System.out.println("---------------------------------\nRESULTAT\n---------------------------------");
+		System.out.println("Réponses :\n"+algo1.get_rmx_machine().toString());
+		algo1.write_rmx();
+
+	}
 
 
 }

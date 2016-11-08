@@ -9,32 +9,34 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Algo1SplitAndSend {
+public class AlgoMaster {
 
-	// prend un chemin de fichier input en argument
-	// prend un chemin de fichier output en argument
-	// écrit sur le disque le split sur fichier output
-	// peut renvoyer la liste des Sx
+	// prend un path de fichier input en argument
+	// prend un nom de chemin output en argument
 	
 	private Path input_file;
-	private String output_folder;
+	private String root_folder;
 	private ArrayList<String> sx_list;
 	private ArrayList<String> machine_list;
 	private HashMap<String, String> umx_machine;
 	private HashMap<String, ArrayList<String>> machine_keys;
 	private HashMap<String, ArrayList<String>> umx_keys;
 	private HashMap<String, ArrayList<String>> key_umxs;
+	private HashMap<String, String> machine_command;
+	private HashMap<String, String> rmx_machine;
+	private ArrayList<String> rmx_final;
+	
 
-	public Algo1SplitAndSend(Path input_file, String output_folder){
+	public AlgoMaster(Path input_file, String root_folder){
 		this.input_file = input_file;
-		this.output_folder = output_folder;
+		this.root_folder = root_folder;
 		
 	}
 	
 	public void split() throws IOException{
 		// on lit le fichier Input.txt ligne par ligne
 		Path input_file = this.input_file;
-		String folder = this.output_folder;
+		String sx_Folder = this.root_folder+"Sx/";
 		ArrayList<String> sx_list = new ArrayList<String>();
 		List<String> lignes;
 		Integer i = 0;
@@ -43,7 +45,7 @@ public class Algo1SplitAndSend {
 			// on affiche la ligne
 			System.out.println(ligne);
 			// on l'écrit dans un fichier nommé S<num ligne>
-			Path sx = Paths.get(folder+i);
+			Path sx = Paths.get(sx_Folder+i);
 			Files.write(sx, Arrays.asList(ligne), Charset.forName("UTF-8"));
 			i += 1;
 			sx_list.add("S"+i);
@@ -60,7 +62,7 @@ public class Algo1SplitAndSend {
 	}
 	
 	public void sendSplitOrderToMachines(){
-		// cette méthode renvoie le dictionnaire Umx-machines
+		// cette méthode créé le dictionnaire Umx-machines
 		// idéalement on réalise un scp pour envoyer les fichiers (ici on triche)
 		// on lance la procédure s'il y a des machines
 		// TODO répartir si machines < jobs
@@ -79,7 +81,7 @@ public class Algo1SplitAndSend {
 				this.umx_machine.put("Um"+k, machine);
 				System.out.println("Envoi de S"+k+" à la machine "+machine+" devant nous renvoyer Um"+k);
             	LaunchSlaveShavadoop slave = new LaunchSlaveShavadoop(machine,
-                        "cd workspace/Sys_distribue;java -jar SLAVESHAVADOOP.jar S"+k, 20);
+                        "cd workspace/Sys_distribue;java -jar SLAVESHAVADOOP.jar modeSXUMX S"+k, 20);
                 slave.start();
                 slaves.add(slave);
 			}
@@ -96,7 +98,7 @@ public class Algo1SplitAndSend {
                 }
             }
             
-            System.out.println("Algo1 terminé");
+            //System.out.println("Mapping terminé");
         }
 	}
 	public HashMap<String, String> getUmxMachineDict(){
@@ -131,7 +133,66 @@ public class Algo1SplitAndSend {
 	
 	public HashMap<String,ArrayList<String>> getKeyUmxs(){
 		return this.key_umxs;
-		
 	}
-
+	
+	public void prepare_job_dispatch(){
+		// à partir du dict machine_keys on va déterminer à qui on va envoyer quels jobs
+		// version simple et débile, itération sur les clés
+		// TODO algo à faire
+		HashMap<String,String> machine_command = new HashMap<String,String>();
+		Integer i = 0;
+		for (Map.Entry<String, ArrayList<String>> key_values: this.key_umxs.entrySet()){
+			String machine = this.machine_list.get(i);
+			String key = key_values.getKey();
+			ArrayList<String> umxs = key_values.getValue();
+			String umx_concat = "";
+			for (String umx: umxs){
+				umx_concat += " "+umx; // attention, commence par un " "
+			} 
+			String command = "modeUMXSMX "+key+" SM"+i+umx_concat;
+			machine_command.put(machine, command);
+			i += 1;
+		}
+		this.machine_command = machine_command;
+	}
+	
+	public void sendReduceOrder(){
+		// on envoie les ordres 
+		this.rmx_machine = new HashMap<String, String>();
+		this.rmx_final = new ArrayList<String>();
+		
+		if (this.machine_command != null) {
+            ArrayList<LaunchSlaveShavadoop> slaves = new ArrayList<LaunchSlaveShavadoop>();
+            for (Map.Entry<String, String>  entry: this.machine_command.entrySet()) {
+            	// on prend la kième machine
+				System.out.println("Envoi de la commande "+ entry.getValue()+" à la machine "+entry.getKey()+".");
+            	LaunchSlaveShavadoop slave = new LaunchSlaveShavadoop(entry.getKey(),
+                        "cd workspace/Sys_distribue;java -jar SLAVESHAVADOOP.jar "+entry.getValue(), 20);
+                slave.start();
+                slaves.add(slave);
+			}
+            for (int k = 0; k < slaves.size(); k++) {
+                try {
+                	LaunchSlaveShavadoop slave = slaves.get(k);
+                    slave.join();
+                    // on attend que le thread soit terminé pour ajouter au dictionnaire
+                    this.rmx_machine.put(slave.get_response().get(0), slave.getMachine());
+                    this.rmx_final.add(slave.get_response().get(0));
+                } catch (InterruptedException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
+            
+        }
+	}
+	
+	public HashMap<String, String> get_rmx_machine(){
+		return this.rmx_machine;
+	}
+	public void write_rmx() throws IOException{
+		String rmx_Folder = this.root_folder+"Result/";
+		Path output = Paths.get(rmx_Folder+"Rmx");
+		Files.write(output, this.rmx_final, Charset.forName("UTF-8"));
+	}
 }

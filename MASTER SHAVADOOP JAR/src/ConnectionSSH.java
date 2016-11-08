@@ -3,33 +3,33 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 
-public class TestConnectionSSH extends Thread{
+public class ConnectionSSH extends Thread{
 	
 	private String machine;
 	private int timeout;
 	private ArrayBlockingQueue<String> standard_output = new ArrayBlockingQueue<String>(1000);
 	private ArrayBlockingQueue<String> error_output = new ArrayBlockingQueue<String>(1000);
-	private boolean connectionOK = false;
+	private boolean connection_status = false;
 	
 	public String getMachine() {
 		return machine;
 	}
 
-	public void setConnectionOK(boolean connectionOK) {
-		this.connectionOK = connectionOK;
+	public void setConnectionOK(boolean connection_status) {
+		this.connection_status = connection_status;
 	}
 
 	public boolean isConnectionOK() {
-		return connectionOK;
+		return connection_status;
 	}
 
-	public TestConnectionSSH(String machine, int timeout){
+	public ConnectionSSH(String machine, int timeout){
 		this.machine=machine;
 		this.timeout = timeout;
 	}
 	
 	public void affiche(String texte){
-		System.out.println("[TestConnectionSSH "+machine+"] "+texte);
+		System.out.println("[Test SSH "+machine+"] "+texte);
 	}
 	
 	public void run(){
@@ -47,7 +47,7 @@ public class TestConnectionSSH extends Thread{
             while(s!=null && !s.equals("ENDOFTHREAD")){
             	affiche(s);
             	if(s.contains("OK")){
-            		connectionOK = true;
+            		connection_status = true;
             	}
             	s = standard_output.poll(timeout, TimeUnit.SECONDS);
             }

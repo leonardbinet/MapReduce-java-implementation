@@ -19,7 +19,7 @@ public class CheckMachinesUp {
 	
 	public void test_Machines_Up(){
 		List<String> machines;
-		ArrayList<TestConnectionSSH> listeTests = new ArrayList<TestConnectionSSH>();
+		ArrayList<ConnectionSSH> listeTests = new ArrayList<ConnectionSSH>();
 
 		Path filein = this.file_machines_to_test;
 		try {
@@ -29,7 +29,7 @@ public class CheckMachinesUp {
 				/*
 				 * on teste la connection SSH pendant 7 secondes maximum
 				 */
-				TestConnectionSSH test = new TestConnectionSSH(machine, 7);
+				ConnectionSSH test = new ConnectionSSH(machine, 7);
 				test.start();
 				listeTests.add(test);
 			}
@@ -38,7 +38,7 @@ public class CheckMachinesUp {
 			e1.printStackTrace();
 		}
 		ArrayList<String> liste_machines_ok = new ArrayList<String>();
-		for (TestConnectionSSH test : listeTests) {
+		for (ConnectionSSH test : listeTests) {
 			try {
 				test.join();// on attend la fin du test
 				if (test.isConnectionOK()) {
