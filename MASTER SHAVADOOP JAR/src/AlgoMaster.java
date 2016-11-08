@@ -45,7 +45,7 @@ public class AlgoMaster {
 			// on affiche la ligne
 			System.out.println(ligne);
 			// on l'écrit dans un fichier nommé S<num ligne>
-			Path sx = Paths.get(sx_Folder+i);
+			Path sx = Paths.get(sx_Folder+"S"+i);
 			Files.write(sx, Arrays.asList(ligne), Charset.forName("UTF-8"));
 			i += 1;
 			sx_list.add("S"+i);
