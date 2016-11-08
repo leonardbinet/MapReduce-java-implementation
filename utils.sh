@@ -27,6 +27,10 @@ then
     echo "Lancement du script: run"
     ssh telecom "ssh -o StrictHostKeyChecking=no "$machine" 'cd workspace/Sys_distribue && java -jar MASTERSHAVADOOP.jar Input.txt'"
 
+elif [ $1 = "purge" ]
+then
+    echo "Lancement du script: purge (suppression des Sx et Umx)"
+    ssh telecom "cd workspace/Sys_distribue/Sx && echo Sx && rm * && cd ../Umx && echo Umx &&rm *"
 else
     echo "Aucun argument passé: run, git ou jar"
 fi

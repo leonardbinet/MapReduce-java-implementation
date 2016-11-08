@@ -1,4 +1,5 @@
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
@@ -10,6 +11,7 @@ public class LaunchSlaveShavadoop extends Thread{
 	private int timeout;
 	private ArrayBlockingQueue<String> standard_output = new ArrayBlockingQueue<String>(1000);
 	private ArrayBlockingQueue<String> error_output = new ArrayBlockingQueue<String>(1000);
+	private ArrayList<String> reponse;
 	
 	public String getMachine() {
 		return machine;
@@ -20,6 +22,7 @@ public class LaunchSlaveShavadoop extends Thread{
 		this.machine=machine;
 		this.timeout = timeout;
 		this.command = command;
+		this.reponse = new ArrayList<String>();
 	}
 	
 	public void affiche(String texte){
@@ -47,6 +50,7 @@ public class LaunchSlaveShavadoop extends Thread{
             s = error_output.poll(timeout, TimeUnit.SECONDS);
             while(s!=null && !s.equals("ENDOFTHREAD")){
             	affiche(s);
+            	this.reponse.add(s);
             	s = error_output.poll(timeout, TimeUnit.SECONDS);
             }
          
@@ -56,6 +60,10 @@ public class LaunchSlaveShavadoop extends Thread{
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+	}
+	
+	public ArrayList<String> get_response(){
+		return this.reponse;
 	}
 
 }
