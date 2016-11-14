@@ -42,7 +42,7 @@ public class LaunchSlaveShavadoop extends Thread{
 
             String s = standard_output.poll(timeout, TimeUnit.SECONDS);
             while(s!=null && !s.equals("ENDOFTHREAD")){
-            	affiche(s);
+            	//affiche(s);
             	this.reponse.add(s);
             	s = standard_output.poll(timeout, TimeUnit.SECONDS);
             }
