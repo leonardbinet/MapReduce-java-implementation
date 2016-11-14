@@ -8,13 +8,15 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.lang.Integer;
 
 public class AlgoMaster {
 
 	// prend un path de fichier input en argument
 	// prend un nom de chemin output en argument
 	
-	private Path input_file;
+	private Path input_path;
+	private ArrayList<String> input_content;
 	private String root_folder;
 	private ArrayList<String> sx_list;
 	private ArrayList<String> machine_list;
@@ -22,25 +24,43 @@ public class AlgoMaster {
 	private HashMap<String, ArrayList<String>> machine_keys;
 	private HashMap<String, ArrayList<String>> umx_keys;
 	private HashMap<String, ArrayList<String>> key_umxs;
-	private HashMap<String, String> machine_command;
+	private ArrayList<List<String>> machine_command;
 	private HashMap<String, String> rmx_machine;
 	private ArrayList<String> rmx_final;
 	
 
 	public AlgoMaster(Path input_file, String root_folder){
-		this.input_file = input_file;
+		this.input_path = input_file;
 		this.root_folder = root_folder;
-		
+	}
+	
+	public void cleanImportInput() throws IOException{
+		// renvoi liste de string
+		Path input_file = this.input_path;
+		List<String> lignes = new ArrayList<String>();
+		ArrayList<String> lignes_clean = new ArrayList<String>();
+		lignes = Files.readAllLines(input_file, Charset.forName("UTF-8"));
+		for (String ligne :lignes ){
+			// on enlève les lignes vides
+			if (ligne.length()!=0){
+				// on enlève les caractères spéciaux
+				ligne = ligne.replaceAll("[^\\p{L}\\p{Z}]","");
+				ligne = ligne.trim();
+				if (ligne.length()!=0){
+					lignes_clean.add(ligne);	
+				}
+			}
+		}
+		this.input_content = lignes_clean;
 	}
 	
 	public void split() throws IOException{
 		// on lit le fichier Input.txt ligne par ligne
-		Path input_file = this.input_file;
 		String sx_Folder = this.root_folder+"Sx/";
 		ArrayList<String> sx_list = new ArrayList<String>();
 		List<String> lignes;
 		Integer i = 0;
-		lignes = Files.readAllLines(input_file, Charset.forName("UTF-8"));
+		lignes = this.input_content;
 		for (String ligne :lignes ){
 			// on affiche la ligne
 			System.out.println(ligne);
@@ -61,7 +81,7 @@ public class AlgoMaster {
 		this.machine_list = liste_machines;
 	}
 	
-	public void sendSplitOrderToMachines(){
+	public void sendMapOrderToMachines(){
 		// cette méthode créé le dictionnaire Umx-machines
 		// idéalement on réalise un scp pour envoyer les fichiers (ici on triche)
 		// on lance la procédure s'il y a des machines
@@ -73,11 +93,14 @@ public class AlgoMaster {
 		this.machine_keys = new HashMap<String, ArrayList<String>>();
 		this.umx_keys = new HashMap<String, ArrayList<String>>();
 
+		// on divise le nombre de split par le nombre de machines
 		if (this.machine_list != null) {
-            ArrayList<LaunchSlaveShavadoop> slaves = new ArrayList<LaunchSlaveShavadoop>();
-            for (int k = 0; k < sx_list.size(); k++) {
-            	// on prend la kième machine
-				String machine = this.machine_list.get(k);
+			Integer nbr_mach =  this.machine_list.size();
+			Integer nbr_splits =  this.sx_list.size();
+			ArrayList<LaunchSlaveShavadoop> slaves = new ArrayList<LaunchSlaveShavadoop>();
+            for (int k = 0; k < nbr_splits; k++) {
+            	// on prend la k module nbr_mach ième machine
+				String machine = this.machine_list.get(k % nbr_mach);
 				this.umx_machine.put("Um"+k, machine);
 				System.out.println("Envoi de S"+k+" à la machine "+machine+" devant nous renvoyer Um"+k);
             	LaunchSlaveShavadoop slave = new LaunchSlaveShavadoop(machine,
@@ -112,9 +135,6 @@ public class AlgoMaster {
 	public void reverse_index(){
 		// INPUT
 		//          Umx - [keys]
-		// TRANSFORM
-		// =>       Umx - key // Umx - key // etc
-		// =>       key - [Umxs]
 		// OUTPUT
 		//          key - [Umxs]
 		
@@ -137,12 +157,15 @@ public class AlgoMaster {
 	
 	public void prepare_job_dispatch(){
 		// à partir du dict machine_keys on va déterminer à qui on va envoyer quels jobs
+		// le dictionnaire machine => commande est enregistré en output
 		// version simple et débile, itération sur les clés
-		// TODO algo à faire
-		HashMap<String,String> machine_command = new HashMap<String,String>();
+		// TODO algo plus intelligent à faire
+		
+		ArrayList<List<String>> machine_command = new ArrayList<List<String>>();
 		Integer i = 0;
+		Integer nbr_mach =  this.machine_list.size();
 		for (Map.Entry<String, ArrayList<String>> key_values: this.key_umxs.entrySet()){
-			String machine = this.machine_list.get(i);
+			String machine = this.machine_list.get(i % nbr_mach);
 			String key = key_values.getKey();
 			ArrayList<String> umxs = key_values.getValue();
 			String umx_concat = "";
@@ -150,7 +173,8 @@ public class AlgoMaster {
 				umx_concat += " "+umx; // attention, commence par un " "
 			} 
 			String command = "modeUMXSMX "+key+" SM"+i+umx_concat;
-			machine_command.put(machine, command);
+			List<String> temp =Arrays.asList(machine,command) ;
+			machine_command.add(temp);
 			i += 1;
 		}
 		this.machine_command = machine_command;
@@ -163,11 +187,10 @@ public class AlgoMaster {
 		
 		if (this.machine_command != null) {
             ArrayList<LaunchSlaveShavadoop> slaves = new ArrayList<LaunchSlaveShavadoop>();
-            for (Map.Entry<String, String>  entry: this.machine_command.entrySet()) {
-            	// on prend la kième machine
-				System.out.println("Envoi de la commande "+ entry.getValue()+" à la machine "+entry.getKey()+".");
-            	LaunchSlaveShavadoop slave = new LaunchSlaveShavadoop(entry.getKey(),
-                        "cd workspace/Sys_distribue;java -jar SLAVESHAVADOOP.jar "+entry.getValue(), 20);
+            for (List<String>  entry: this.machine_command) {
+				System.out.println("Envoi de la commande "+ entry.get(1)+" à la machine "+entry.get(0)+".");
+            	LaunchSlaveShavadoop slave = new LaunchSlaveShavadoop(entry.get(0),
+                        "cd workspace/Sys_distribue;java -jar SLAVESHAVADOOP.jar "+entry.get(1), 20);
                 slave.start();
                 slaves.add(slave);
 			}
@@ -186,9 +209,15 @@ public class AlgoMaster {
             
         }
 	}
+	public ArrayList<List<String>> get_machine_command(){
+		return this.machine_command;
+	}
 	
 	public HashMap<String, String> get_rmx_machine(){
 		return this.rmx_machine;
+	}
+	public ArrayList<String> get_rmx_final(){
+		return this.rmx_final;
 	}
 	public void write_rmx() throws IOException{
 		String rmx_Folder = this.root_folder+"Result/";

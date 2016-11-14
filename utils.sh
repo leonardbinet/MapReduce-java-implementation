@@ -6,7 +6,7 @@ racine="/cal/homes/lbinet/workspace/Sys_distribue"
 # paramètre $2 pour la machine à choisir, par défaut C133-22
 if [ -z "$2" ]
 then
-    machine="C133-22"
+    machine="C133-01"
 else
     machine=$2
 fi
@@ -37,7 +37,7 @@ then
 elif [ $1 = "run" ]
 then
     echo "Lancement du script: run"
-    ssh telecom "ssh -o StrictHostKeyChecking=no "$machine" 'cd "$racine" && java -jar MASTERSHAVADOOP.jar Input.txt'"
+    ssh telecom "ssh -o StrictHostKeyChecking=no "$machine" 'cd "$racine" && java -jar MASTERSHAVADOOP.jar Input/forestier_mayotte.txt'"
 elif [ $1 = "runslave" ]
 then
     echo "Lancement du script: "

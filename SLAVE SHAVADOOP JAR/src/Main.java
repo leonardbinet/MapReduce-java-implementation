@@ -6,7 +6,8 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Main {
 
@@ -33,8 +34,14 @@ public class Main {
         	
         	// chemin de lecture Sx
     		Path sx_input = Paths.get(dossierSx + args[1]);
-    		// obtention de l'id
-    		String id = args[1].substring(args[1].length() - 1);
+    		// obtention de l'id à partir du nom de notre um
+		    // Create a Pattern object
+		    Pattern r = Pattern.compile("(\\d+)");
+		    // Now create matcher object.
+		    Matcher m = r.matcher(args[1]);
+		    m.find();
+		    String id =  m.group(0);
+
     		// chemin d'ecriture Umx
     		Path umx_output = Paths.get(dossierUmx+"Um"+id);
 
@@ -47,9 +54,11 @@ public class Main {
     				// each line has words separated by spaces
     				String[] words = ligne.split(" ");
     				for (String word: words){
-    					// append to list
-    					Umx_write.add(word + " 1");
-    					System.out.println(word);
+    					if (word.length()>0){
+    						// append to list
+        					Umx_write.add(word + " 1");
+        					System.out.println(word);
+    					}
     				}
     			}
     			Files.write(umx_output, Umx_write, Charset.forName("UTF-8"));
@@ -64,7 +73,13 @@ public class Main {
         
         	String key = args[1]; 									// clé demandée
         	String sm_name = args[2]; 								// nom du fichier de sortie
-    		String id = sm_name.substring(sm_name.length() - 1); 	// obtention de l'id
+        	// obtention de l'id à partir du nom de notre um
+		    // Create a Pattern object
+		    Pattern r = Pattern.compile("(\\d+)");
+		    // Now create matcher object.
+		    Matcher m = r.matcher(sm_name);
+		    m.find();
+		    String id =  m.group(0);
     		
         	ArrayList<String> um_names = new ArrayList<String>(); 	// noms des fichiers entrée
         	for(int i=3; i <= args.length -1; i++) {
