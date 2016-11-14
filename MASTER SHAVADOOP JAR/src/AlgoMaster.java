@@ -5,16 +5,20 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.lang.Integer;
 
 public class AlgoMaster {
-
+	
 	// prend un path de fichier input en argument
 	// prend un nom de chemin output en argument
-	
 	private Path input_path;
 	private ArrayList<String> input_content;
 	private String root_folder;
@@ -23,16 +27,44 @@ public class AlgoMaster {
 	private HashMap<String, String> umx_machine;
 	private HashMap<String, ArrayList<String>> machine_keys;
 	private HashMap<String, ArrayList<String>> umx_keys;
-	private HashMap<String, ArrayList<String>> key_umxs;
+	private HashMap<String, HashSet<String>> key_umxs;
 	private ArrayList<List<String>> machine_command;
 	private HashMap<String, String> rmx_machine;
-	private ArrayList<String> rmx_final;
+	private List<String> mot_filtres;
+	private ArrayList<ReduceResult> rmx_final;
+	private ArrayList<String> rmx_final_raw;
+
 	
+	public class ReduceResult {
+		  private String key;
+		  private Integer value;
+		  
+		  public ReduceResult(String rawResult) {
+			  Pattern r = Pattern.compile("(\\D+) (\\d+)");
+			  Matcher m = r.matcher(rawResult);
+			  m.find();
+			  this.key = m.group(1);
+			  this.value = Integer.parseInt(m.group(2));
+		  }
+		  public String toString(){
+			  return this.key +" "+ this.value.toString();
+		  };
+		  public String getKey() { return this.key; }
+		  public Integer getValue() { return this.value; }
+	}
+	
+	Comparator<ReduceResult> result_comp = new Comparator<ReduceResult>() {
+		@Override
+		public int compare(ReduceResult a, ReduceResult b) {
+		    return b.getValue().compareTo(a.getValue());
+		}
+	};
 
 	public AlgoMaster(Path input_file, String root_folder){
 		this.input_path = input_file;
 		this.root_folder = root_folder;
 	}
+	
 	
 	public void cleanImportInput() throws IOException{
 		// renvoi liste de string
@@ -46,6 +78,7 @@ public class AlgoMaster {
 				// on enlève les caractères spéciaux
 				ligne = ligne.replaceAll("[^\\p{L}\\p{Z}]","");
 				ligne = ligne.trim();
+				ligne = ligne.toLowerCase();
 				if (ligne.length()!=0){
 					lignes_clean.add(ligne);	
 				}
@@ -61,9 +94,11 @@ public class AlgoMaster {
 		List<String> lignes;
 		Integer i = 0;
 		lignes = this.input_content;
-		for (String ligne :lignes ){
+		for (String ligne :lignes){
 			// on affiche la ligne
 			System.out.println(ligne);
+			
+			// on écrit par blocs de 100 lignes
 			// on l'écrit dans un fichier nommé S<num ligne>
 			Path sx = Paths.get(sx_Folder+"S"+i);
 			Files.write(sx, Arrays.asList(ligne), Charset.forName("UTF-8"));
@@ -105,10 +140,10 @@ public class AlgoMaster {
 				System.out.println("Envoi de S"+k+" à la machine "+machine+" devant nous renvoyer Um"+k);
             	LaunchSlaveShavadoop slave = new LaunchSlaveShavadoop(machine,
                         "cd workspace/Sys_distribue;java -jar SLAVESHAVADOOP.jar modeSXUMX S"+k, 20);
-                slave.start();
+                slave.start(); 
                 slaves.add(slave);
 			}
-            for (int k = 0; k < sx_list.size(); k++) {
+            for (int k = 0; k < nbr_splits; k++) {
                 try {
                 	LaunchSlaveShavadoop slave = slaves.get(k);
                     slave.join();
@@ -138,12 +173,12 @@ public class AlgoMaster {
 		// OUTPUT
 		//          key - [Umxs]
 		
-		HashMap<String,ArrayList<String>> inversed = new HashMap<String,ArrayList<String>>(this.umx_keys.size());
+		HashMap<String,HashSet<String>> inversed = new HashMap<String,HashSet<String>>(this.umx_keys.size());
 	    
 		for(Map.Entry<String, ArrayList<String>> entry : this.umx_keys.entrySet()) {
 	        for(String key : entry.getValue()) {    // entry.getValue() est ArrayList<String> (keys)         
 	            if(!inversed.containsKey(key)) { 
-	                inversed.put(key,new ArrayList<String>());
+	                inversed.put(key,new HashSet<String>());
 	            }
 	            inversed.get(key).add(entry.getKey());
 	        } 
@@ -151,7 +186,7 @@ public class AlgoMaster {
 		this.key_umxs = inversed;
 	}
 	
-	public HashMap<String,ArrayList<String>> getKeyUmxs(){
+	public HashMap<String,HashSet<String>> getKeyUmxs(){
 		return this.key_umxs;
 	}
 	
@@ -164,10 +199,10 @@ public class AlgoMaster {
 		ArrayList<List<String>> machine_command = new ArrayList<List<String>>();
 		Integer i = 0;
 		Integer nbr_mach =  this.machine_list.size();
-		for (Map.Entry<String, ArrayList<String>> key_values: this.key_umxs.entrySet()){
+		for (Map.Entry<String, HashSet<String>> key_values: this.key_umxs.entrySet()){
 			String machine = this.machine_list.get(i % nbr_mach);
 			String key = key_values.getKey();
-			ArrayList<String> umxs = key_values.getValue();
+			HashSet<String> umxs = key_values.getValue();
 			String umx_concat = "";
 			for (String umx: umxs){
 				umx_concat += " "+umx; // attention, commence par un " "
@@ -181,18 +216,28 @@ public class AlgoMaster {
 	}
 	
 	public void sendReduceOrder(){
-		// on envoie les ordres 
+		// on envoie les ordres contenus dans this.machine_command
+		Integer max_threads = this.machine_list.size()*3;
+		ArrayList<List<String>> machine_command_to_compute = this.machine_command;
+		// initiation des résultats
 		this.rmx_machine = new HashMap<String, String>();
-		this.rmx_final = new ArrayList<String>();
+		this.rmx_final = new ArrayList<ReduceResult>();
+		this.rmx_final_raw = new ArrayList<String>();
 		
-		if (this.machine_command != null) {
+		while (! machine_command_to_compute.isEmpty()) {
             ArrayList<LaunchSlaveShavadoop> slaves = new ArrayList<LaunchSlaveShavadoop>();
-            for (List<String>  entry: this.machine_command) {
+            Integer limit = Math.min(max_threads, machine_command_to_compute.size());
+            
+            for (List<String>  entry: machine_command_to_compute) {
 				System.out.println("Envoi de la commande "+ entry.get(1)+" à la machine "+entry.get(0)+".");
             	LaunchSlaveShavadoop slave = new LaunchSlaveShavadoop(entry.get(0),
                         "cd workspace/Sys_distribue;java -jar SLAVESHAVADOOP.jar "+entry.get(1), 20);
                 slave.start();
                 slaves.add(slave);
+                limit -= 1;
+                if (limit.equals(0)){
+                	break;
+                }
 			}
             for (int k = 0; k < slaves.size(); k++) {
                 try {
@@ -200,14 +245,18 @@ public class AlgoMaster {
                     slave.join();
                     // on attend que le thread soit terminé pour ajouter au dictionnaire
                     this.rmx_machine.put(slave.get_response().get(0), slave.getMachine());
-                    this.rmx_final.add(slave.get_response().get(0));
+                    ReduceResult result = new ReduceResult(slave.get_response().get(0));
+                    this.rmx_final.add(result);
+                    this.rmx_final_raw.add(slave.get_response().get(0));
+                    machine_command_to_compute.remove(k);
+                    slaves.remove(k);
                 } catch (InterruptedException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
-            }
-            
-        }
+            }	
+		}
+		
 	}
 	public ArrayList<List<String>> get_machine_command(){
 		return this.machine_command;
@@ -216,12 +265,27 @@ public class AlgoMaster {
 	public HashMap<String, String> get_rmx_machine(){
 		return this.rmx_machine;
 	}
-	public ArrayList<String> get_rmx_final(){
+	public ArrayList<ReduceResult> get_rmx_ordered(){
+		Collections.sort(this.rmx_final, result_comp);
 		return this.rmx_final;
 	}
-	public void write_rmx() throws IOException{
+	public void write_rmx_raw() throws IOException{
 		String rmx_Folder = this.root_folder+"Result/";
 		Path output = Paths.get(rmx_Folder+"Rmx");
-		Files.write(output, this.rmx_final, Charset.forName("UTF-8"));
+		Files.write(output, this.rmx_final_raw, Charset.forName("UTF-8"));
 	}
+	public void set_filtered_words(List<String> filtered_words){
+		this.mot_filtres = filtered_words;
+	}
+	
+	public ArrayList<ReduceResult> getFilteredResults(){
+		ArrayList<ReduceResult> filtered_result = new ArrayList<ReduceResult>();
+		for (ReduceResult entry: this.rmx_final){
+			if (! this.mot_filtres.contains(entry.key)){
+				filtered_result.add(entry);
+			}
+		}
+		return filtered_result;
+	};
+	
 }

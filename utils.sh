@@ -37,7 +37,7 @@ then
 elif [ $1 = "run" ]
 then
     echo "Lancement du script: run"
-    ssh telecom "ssh -o StrictHostKeyChecking=no "$machine" 'cd "$racine" && java -jar MASTERSHAVADOOP.jar Input/deontologie_police_nationale.txt'"
+    ssh telecom "ssh -o StrictHostKeyChecking=no "$machine" 'cd "$racine" && java -jar MASTERSHAVADOOP.jar Input/domaine_public_fluvial.txt'"
 elif [ $1 = "runslave" ]
 then
     echo "Lancement du script: "

@@ -5,6 +5,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -51,18 +52,16 @@ public class Main {
     			lignes = Files.readAllLines(sx_input, Charset.forName("UTF-8"));
     			ArrayList<String> Umx_write = new ArrayList<String>();
     			for (String ligne: lignes ){
-    				// each line has words separated by spaces
+    				// les mots sont séparés par des espaces
     				String[] words = ligne.split(" ");
     				for (String word: words){
     					if (word.length()>0){
-    						// append to list
         					Umx_write.add(word + " 1");
         					System.out.println(word);
     					}
     				}
     			}
     			Files.write(umx_output, Umx_write, Charset.forName("UTF-8"));
-    			//System.out.println("Ecriture terminée de Um"+id);
     			} catch (IOException e1) {
     			// TODO Auto-generated catch block
     			e1.printStackTrace();
@@ -81,7 +80,7 @@ public class Main {
 		    m.find();
 		    String id =  m.group(0);
     		
-        	ArrayList<String> um_names = new ArrayList<String>(); 	// noms des fichiers entrée
+        	HashSet<String> um_names = new HashSet<String>(); 	// noms des fichiers entrée
         	for(int i=3; i <= args.length -1; i++) {
         		um_names.add(args[i]);
         	    }

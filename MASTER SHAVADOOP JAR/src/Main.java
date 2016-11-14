@@ -3,6 +3,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 
 public class Main {
 
@@ -13,8 +14,11 @@ public class Main {
 		long stepTime;
 		long totalTime;
 		
+		Config config = new Config();
+		
 		System.out.println("Lancement de l'algorithme principal sur le fichier " + args[0]);
-		String dossier = "/cal/homes/lbinet/workspace/Sys_distribue/";
+		String dossier = config.dossier;
+		
 		Path input_file = Paths.get(dossier+args[0]);
 		
 		
@@ -59,7 +63,7 @@ public class Main {
 
 		algo1.reverse_index();
 
-		HashMap<String, ArrayList<String>> key_umxs = algo1.getKeyUmxs();
+		HashMap<String, HashSet<String>> key_umxs = algo1.getKeyUmxs();
 		System.out.println("Notre dictionnaire key - [Umx] : \n"+ key_umxs.toString());
 		
 		stepTime   = System.currentTimeMillis() - startStepTime;
@@ -86,9 +90,13 @@ public class Main {
 		
 		System.out.println("---------------------------------\nRESULTAT\n---------------------------------");
 		startStepTime = System.currentTimeMillis();
+		
+		
+		algo1.set_filtered_words(config.filtered_words);
+		System.out.println("Réponses: \n"+algo1.get_rmx_ordered().toString());
+		System.out.println("Réponses filtrées: \n"+algo1.getFilteredResults().toString());
 
-		System.out.println("Réponses :\n"+algo1.get_rmx_final().toString());
-		algo1.write_rmx();
+		algo1.write_rmx_raw();
 		
 		stepTime   = System.currentTimeMillis() - startStepTime;
 		System.out.println("---Temps: "+stepTime+" ---");
