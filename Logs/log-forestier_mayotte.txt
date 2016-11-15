@@ -1,0 +1,168 @@
+Connexion sur ssh.enst.fr puis sur C129-10 si besoin
+Lancement du script: run
+Lancement de l'algorithme principal sur le fichier Input/forestier_mayotte.txt
+---------------------------------
+INITIALISATION - TEST MACHINES 
+---------------------------------
+[Test SSH random] ssh: Could not resolve hostname random: Name or service not known
+[Test SSH pas bon] ssh: Could not resolve hostname pas bon: Name or service not known
+[Test SSH C133-10] OK
+[Test SSH C133-04] OK
+[Test SSH C133-03] OK
+[Test SSH C133-02] OK
+[Test SSH C128-04] OK
+[Test SSH C128-01] OK
+[Test SSH C133-07] OK
+[Test SSH C133-06] OK
+[Test SSH C133-05] OK
+[Test SSH C133-08] OK
+[Test SSH C130-07] OK
+[Test SSH C128-03] OK
+[Test SSH C128-06] OK
+[Test SSH C128-05] OK
+[Test SSH C129-02] OK
+[Test SSH C133-01] OK
+[Test SSH C130-03] OK
+[Test SSH C128-07] OK
+[Test SSH C133-09] OK
+[Test SSH C130-06] OK
+[Test SSH C130-04] ssh: connect to host c130-04 port 22: No route to host
+[Test SSH C129-05] ssh: connect to host c129-05 port 22: No route to host
+[Test SSH C129-03] ssh: connect to host c129-03 port 22: No route to host
+[Test SSH C130-08] ssh: connect to host c130-08 port 22: No route to host
+[Test SSH C129-06] ssh: connect to host c129-06 port 22: No route to host
+[Test SSH C130-01] ssh: connect to host c130-01 port 22: No route to host
+[Test SSH C128-08] ssh: connect to host c128-08 port 22: No route to host
+[Test SSH C129-07] ssh: connect to host c129-07 port 22: No route to host
+[Test SSH C128-02] ssh: connect to host c128-02 port 22: No route to host
+[Test SSH C129-04] ssh: connect to host c129-04 port 22: No route to host
+[Test SSH C129-08] ssh: connect to host c129-08 port 22: No route to host
+[Test SSH C129-01] ssh: connect to host c129-01 port 22: No route to host
+[Test SSH C130-02] ssh: connect to host c130-02 port 22: No route to host
+---Temps: 6038 ---
+---------------------------------
+IMPORT ET NETTOYAGE INPUT
+---------------------------------
+---Temps: 14 ---
+---------------------------------
+SPLIT
+---------------------------------
+code forestier de mayotte
+sommaire
+partie législative
+table
+table des matières
+partie législative livre préliminaire  dispositions communes à tous les biens régis par le code forestier titre ii  dispositions communes à tous les biens forestiers ou agroforestiers
+code forestier de mayotte
+partie législative
+article l
+le bénéfice des aides publiques attachées aux biens forestiers ou agroforestiers est accordé prioritairement aux propriétaires de biens présentant des garanties de bonne gestion et qui souscrivent lengagement de ne pas démembrer volontairement lunité de gestion forestière ou agroforestière que constitue leur propriété ou dont elle fait partie
+code forestier de mayotte  forestiermayottede
+livre préliminaire  dispositions communes à tous les biens régis par le code forestier
+titre ii  dispositions communes à tous les biens forestiers ou agroforestiers
+article l
+le bénéfice des aides publiques attachées aux biens forestiers ou agroforestiers est accordé prioritairement aux propriétaires de biens présentant des garanties de bonne gestion et qui souscrivent lengagement de ne pas démembrer volontairement lunité de gestion forestière ou agroforestière que constitue leur propriété ou dont elle fait partie
+code forestier de mayotte
+plan
+---Temps: 93 ---
+---------------------------------
+MAP
+---------------------------------
+Envoi de S0 à la machine C128-01 devant nous renvoyer Um0
+Notre dictionnaire Umx - machine: 
+{Um0=C128-01}
+---Temps: 428 ---
+---------------------------------
+SHUFFLE
+---------------------------------
+Notre dictionnaire key - [Umx] : 
+{gestion=[Um0], publiques=[Um0], législative=[Um0], souscrivent=[Um0], aux=[Um0], livre=[Um0], titre=[Um0], démembrer=[Um0], bonne=[Um0], est=[Um0], leur=[Um0], propriété=[Um0], communes=[Um0], ou=[Um0], code=[Um0], table=[Um0], lunité=[Um0], fait=[Um0], aides=[Um0], le=[Um0], dont=[Um0], mayotte=[Um0], garanties=[Um0], agroforestière=[Um0], sommaire=[Um0], propriétaires=[Um0], des=[Um0], volontairement=[Um0], dispositions=[Um0], par=[Um0], de=[Um0], attachées=[Um0], lengagement=[Um0], pas=[Um0], agroforestiers=[Um0], régis=[Um0], partie=[Um0], que=[Um0], accordé=[Um0], qui=[Um0], forestier=[Um0], préliminaire=[Um0], prioritairement=[Um0], matières=[Um0], les=[Um0], ii=[Um0], l=[Um0], présentant=[Um0], forestiermayottede=[Um0], biens=[Um0], elle=[Um0], à=[Um0], plan=[Um0], article=[Um0], forestière=[Um0], constitue=[Um0], ne=[Um0], forestiers=[Um0], et=[Um0], tous=[Um0], bénéfice=[Um0]}
+---Temps: 2 ---
+---------------------------------
+REDUCE
+---------------------------------
+Envoi de la commande modeUMXSMX gestion SM0 Um0 à la machine C128-01.
+Envoi de la commande modeUMXSMX publiques SM1 Um0 à la machine C128-03.
+Envoi de la commande modeUMXSMX législative SM2 Um0 à la machine C128-04.
+Envoi de la commande modeUMXSMX souscrivent SM3 Um0 à la machine C128-05.
+Envoi de la commande modeUMXSMX aux SM4 Um0 à la machine C128-06.
+Envoi de la commande modeUMXSMX livre SM5 Um0 à la machine C128-07.
+Envoi de la commande modeUMXSMX titre SM6 Um0 à la machine C129-02.
+Envoi de la commande modeUMXSMX démembrer SM7 Um0 à la machine C130-03.
+Envoi de la commande modeUMXSMX bonne SM8 Um0 à la machine C130-06.
+Envoi de la commande modeUMXSMX est SM9 Um0 à la machine C130-07.
+Envoi de la commande modeUMXSMX leur SM10 Um0 à la machine C133-01.
+Envoi de la commande modeUMXSMX propriété SM11 Um0 à la machine C133-02.
+Envoi de la commande modeUMXSMX communes SM12 Um0 à la machine C133-03.
+Envoi de la commande modeUMXSMX ou SM13 Um0 à la machine C133-04.
+Envoi de la commande modeUMXSMX code SM14 Um0 à la machine C133-05.
+Envoi de la commande modeUMXSMX table SM15 Um0 à la machine C133-06.
+Envoi de la commande modeUMXSMX lunité SM16 Um0 à la machine C133-07.
+Envoi de la commande modeUMXSMX fait SM17 Um0 à la machine C133-08.
+Envoi de la commande modeUMXSMX aides SM18 Um0 à la machine C133-09.
+Envoi de la commande modeUMXSMX le SM19 Um0 à la machine C133-10.
+Envoi de la commande modeUMXSMX dont SM20 Um0 à la machine C128-01.
+Envoi de la commande modeUMXSMX mayotte SM21 Um0 à la machine C128-03.
+Envoi de la commande modeUMXSMX garanties SM22 Um0 à la machine C128-04.
+Envoi de la commande modeUMXSMX agroforestière SM23 Um0 à la machine C128-05.
+Envoi de la commande modeUMXSMX sommaire SM24 Um0 à la machine C128-06.
+Envoi de la commande modeUMXSMX propriétaires SM25 Um0 à la machine C128-07.
+Envoi de la commande modeUMXSMX des SM26 Um0 à la machine C129-02.
+Envoi de la commande modeUMXSMX volontairement SM27 Um0 à la machine C130-03.
+Envoi de la commande modeUMXSMX dispositions SM28 Um0 à la machine C130-06.
+Envoi de la commande modeUMXSMX par SM29 Um0 à la machine C130-07.
+Envoi de la commande modeUMXSMX de SM30 Um0 à la machine C133-01.
+Envoi de la commande modeUMXSMX attachées SM31 Um0 à la machine C133-02.
+Envoi de la commande modeUMXSMX lengagement SM32 Um0 à la machine C133-03.
+Envoi de la commande modeUMXSMX pas SM33 Um0 à la machine C133-04.
+Envoi de la commande modeUMXSMX agroforestiers SM34 Um0 à la machine C133-05.
+Envoi de la commande modeUMXSMX régis SM35 Um0 à la machine C133-06.
+Envoi de la commande modeUMXSMX partie SM36 Um0 à la machine C133-07.
+Envoi de la commande modeUMXSMX que SM37 Um0 à la machine C133-08.
+Envoi de la commande modeUMXSMX accordé SM38 Um0 à la machine C133-09.
+Envoi de la commande modeUMXSMX qui SM39 Um0 à la machine C133-10.
+Envoi de la commande modeUMXSMX forestier SM40 Um0 à la machine C128-01.
+Envoi de la commande modeUMXSMX préliminaire SM41 Um0 à la machine C128-03.
+Envoi de la commande modeUMXSMX prioritairement SM42 Um0 à la machine C128-04.
+Envoi de la commande modeUMXSMX matières SM43 Um0 à la machine C128-05.
+Envoi de la commande modeUMXSMX les SM44 Um0 à la machine C128-06.
+Envoi de la commande modeUMXSMX ii SM45 Um0 à la machine C128-07.
+Envoi de la commande modeUMXSMX l SM46 Um0 à la machine C129-02.
+Envoi de la commande modeUMXSMX présentant SM47 Um0 à la machine C130-03.
+Envoi de la commande modeUMXSMX forestiermayottede SM48 Um0 à la machine C130-06.
+Envoi de la commande modeUMXSMX biens SM49 Um0 à la machine C130-07.
+Envoi de la commande modeUMXSMX elle SM50 Um0 à la machine C133-01.
+Envoi de la commande modeUMXSMX à SM51 Um0 à la machine C133-02.
+Envoi de la commande modeUMXSMX plan SM52 Um0 à la machine C133-03.
+Envoi de la commande modeUMXSMX article SM53 Um0 à la machine C133-04.
+Envoi de la commande modeUMXSMX forestière SM54 Um0 à la machine C133-05.
+Envoi de la commande modeUMXSMX constitue SM55 Um0 à la machine C133-06.
+Envoi de la commande modeUMXSMX ne SM56 Um0 à la machine C133-07.
+Envoi de la commande modeUMXSMX forestiers SM57 Um0 à la machine C133-08.
+Envoi de la commande modeUMXSMX et SM58 Um0 à la machine C133-09.
+Envoi de la commande modeUMXSMX tous SM59 Um0 à la machine C133-10.
+-------
+ERROR: machine C130-06 commande: cd /cal/homes/lbinet/workspace/Sys_distribue/;java -jar SLAVE.jar modeUMXSMX bonne SM8 Um0
+------
+-------
+ERROR: machine C130-06 commande: cd /cal/homes/lbinet/workspace/Sys_distribue/;java -jar SLAVE.jar modeUMXSMX forestiermayottede SM48 Um0
+------
+-------
+ERROR: machine C130-06 commande: cd /cal/homes/lbinet/workspace/Sys_distribue/;java -jar SLAVE.jar modeUMXSMX dispositions SM28 Um0
+------
+Envoi de la commande modeUMXSMX bonne SM8 Um0 à la machine C130-06.
+Envoi de la commande modeUMXSMX dispositions SM28 Um0 à la machine C130-06.
+Envoi de la commande modeUMXSMX forestiermayottede SM48 Um0 à la machine C130-06.
+Envoi de la commande modeUMXSMX bénéfice SM60 Um0 à la machine C128-01.
+---Temps: 5268 ---
+---------------------------------
+RESULTAT
+---------------------------------
+
+Réponses: 
+[de 12, ou 8, biens 8, forestier 6, code 6, des 5, partie 5, mayotte 4, communes 4, à 4, tous 4, aux 4, le 4, gestion 4, agroforestiers 4, forestiers 4, les 4, dispositions 4, législative 3, dont 2, pas 2, souscrivent 2, aides 2, présentant 2, volontairement 2, table 2, forestière 2, et 2, fait 2, propriété 2, article 2, ii 2, que 2, est 2, ne 2, publiques 2, régis 2, titre 2, constitue 2, attachées 2, par 2, elle 2, qui 2, l 2, leur 2, accordé 2, propriétaires 2, lengagement 2, livre 2, agroforestière 2, lunité 2, préliminaire 2, démembrer 2, prioritairement 2, garanties 2, bonne 2, bénéfice 2, plan 1, matières 1, sommaire 1, forestiermayottede 1]
+
+Réponses filtrées: 
+[biens 8, forestier 6, code 6, partie 5, mayotte 4, communes 4, tous 4, aux 4, gestion 4, agroforestiers 4, forestiers 4, dispositions 4, législative 3, dont 2, pas 2, souscrivent 2, aides 2, présentant 2, volontairement 2, table 2, forestière 2, fait 2, propriété 2, article 2, ii 2, que 2, est 2, publiques 2, régis 2, titre 2, constitue 2, attachées 2, elle 2, qui 2, accordé 2, propriétaires 2, lengagement 2, livre 2, agroforestière 2, lunité 2, préliminaire 2, démembrer 2, prioritairement 2, garanties 2, bonne 2, bénéfice 2, plan 1, matières 1, sommaire 1, forestiermayottede 1]
+---Temps: 8 ---
+---TEMPS TOTAL: 11856 ---

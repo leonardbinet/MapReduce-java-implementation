@@ -21,26 +21,24 @@ public class CheckMachinesUp {
 	
 	public void test_Machines_Up(){
 		List<String> machines;
-		ArrayList<ConnectionSSH> listeTests = new ArrayList<ConnectionSSH>();
+		ArrayList<ConnectSSH> listeTests = new ArrayList<ConnectSSH>();
 
 		Path filein = this.file_machines_to_test;
 		try {
-			// on charge le nom des machines
 			machines = Files.readAllLines(filein, Charset.forName("UTF-8"));
+			
 			for (String machine : machines) {
-				/*
-				 * on teste la connection SSH pendant 'timeout' secondes maximum
-				 */
-				ConnectionSSH test = new ConnectionSSH(machine, this.config.test_timeout);
+				// on teste la connection SSH pendant 'timeout' secondes maximum
+				ConnectSSH test = new ConnectSSH(machine, this.config.test_timeout);
 				test.start();
 				listeTests.add(test);
 			}
 		} catch (IOException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
+		
 		ArrayList<String> liste_machines_ok = new ArrayList<String>();
-		for (ConnectionSSH test : listeTests) {
+		for (ConnectSSH test : listeTests) {
 			try {
 				test.join();// on attend la fin du test
 				if (test.isConnectionOK()) {

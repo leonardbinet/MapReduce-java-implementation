@@ -66,5 +66,7 @@ public class LaunchSlave extends Thread{
 	public ArrayList<String> get_response(){
 		return this.reponse;
 	}
-
+	public String get_command(){
+		return this.command;
+	}
 }

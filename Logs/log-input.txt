@@ -1,0 +1,86 @@
+Connexion sur ssh.enst.fr puis sur C129-10 si besoin
+Lancement du script: run
+Lancement de l'algorithme principal sur le fichier Input/Input.txt
+---------------------------------
+INITIALISATION - TEST MACHINES 
+---------------------------------
+[Test SSH random] ssh: Could not resolve hostname random: Name or service not known
+[Test SSH pas bon] ssh: Could not resolve hostname pas bon: Name or service not known
+[Test SSH C133-10] OK
+[Test SSH C133-07] OK
+[Test SSH C133-08] OK
+[Test SSH C128-06] OK
+[Test SSH C130-03] OK
+[Test SSH C133-01] OK
+[Test SSH C128-03] OK
+[Test SSH C133-03] OK
+[Test SSH C133-02] OK
+[Test SSH C128-01] OK
+[Test SSH C133-05] OK
+[Test SSH C128-04] OK
+[Test SSH C133-04] OK
+[Test SSH C133-06] OK
+[Test SSH C133-09] OK
+[Test SSH C130-07] OK
+[Test SSH C128-05] OK
+[Test SSH C129-02] OK
+[Test SSH C128-07] OK
+[Test SSH C130-05] OK
+[Test SSH C130-06] OK
+[Test SSH C129-08] ssh: connect to host c129-08 port 22: No route to host
+[Test SSH C129-07] ssh: connect to host c129-07 port 22: No route to host
+[Test SSH C130-08] ssh: connect to host c130-08 port 22: No route to host
+[Test SSH C130-01] ssh: connect to host c130-01 port 22: No route to host
+[Test SSH C129-03] ssh: connect to host c129-03 port 22: No route to host
+[Test SSH C128-08] ssh: connect to host c128-08 port 22: No route to host
+[Test SSH C128-02] ssh: connect to host c128-02 port 22: No route to host
+[Test SSH C130-02] ssh: connect to host c130-02 port 22: No route to host
+[Test SSH C130-04] ssh: connect to host c130-04 port 22: No route to host
+[Test SSH C129-01] ssh: connect to host c129-01 port 22: No route to host
+[Test SSH C129-04] ssh: connect to host c129-04 port 22: No route to host
+[Test SSH C129-05] ssh: connect to host c129-05 port 22: No route to host
+[Test SSH C129-06] ssh: connect to host c129-06 port 22: No route to host
+---Temps: 3044 ---
+---------------------------------
+IMPORT ET NETTOYAGE INPUT
+---------------------------------
+---Temps: 10 ---
+---------------------------------
+SPLIT
+---------------------------------
+deer beer river
+car car river
+deer car beer
+---Temps: 3 ---
+---------------------------------
+MAP
+---------------------------------
+Envoi de S0 à la machine C128-01 devant nous renvoyer Um0
+Notre dictionnaire Umx - machine: 
+{Um0=C128-01}
+---Temps: 377 ---
+---------------------------------
+SHUFFLE
+---------------------------------
+Notre dictionnaire key - [Umx] : 
+{car=[Um0], river=[Um0], deer=[Um0], beer=[Um0]}
+---Temps: 0 ---
+---------------------------------
+REDUCE
+---------------------------------
+Envoi de la commande modeUMXSMX car SM0 Um0 à la machine C128-01.
+Envoi de la commande modeUMXSMX river SM1 Um0 à la machine C128-03.
+Envoi de la commande modeUMXSMX deer SM2 Um0 à la machine C128-04.
+Envoi de la commande modeUMXSMX beer SM3 Um0 à la machine C128-05.
+---Temps: 285 ---
+---------------------------------
+RESULTAT
+---------------------------------
+
+Réponses: 
+[car 3, deer 2, river 2, beer 2]
+
+Réponses filtrées: 
+[car 3, deer 2, river 2, beer 2]
+---Temps: 4 ---
+---TEMPS TOTAL: 3733 ---

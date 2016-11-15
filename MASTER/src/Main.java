@@ -17,7 +17,7 @@ public class Main {
 		Config config = new Config();
 		
 		System.out.println("Lancement de l'algorithme principal sur le fichier " + args[0]);
-		String dossier = config.dossier;
+		String dossier = config.racine_master;
 		
 		Path input_file = Paths.get(dossier+args[0]);
 		
@@ -25,7 +25,7 @@ public class Main {
 		System.out.println("---------------------------------\nINITIALISATION - TEST MACHINES \n---------------------------------");
 		startStepTime = System.currentTimeMillis();
 		
-		AlgoMaster algo1 = new AlgoMaster(input_file,dossier);
+		AlgoMaster algo1 = new AlgoMaster(input_file);
 		CheckMachinesUp checkMachines = new CheckMachinesUp("liste_machines.txt", "liste_machines_OK.txt");
 		checkMachines.test_Machines_Up();
 		ArrayList<String> liste_machines_ok = checkMachines.get_Machines_Up();
@@ -95,7 +95,7 @@ public class Main {
 		System.out.println("\nRéponses: \n"+algo1.get_rmx_ordered().toString());
 		System.out.println("\nRéponses filtrées: \n"+algo1.getFilteredResults().toString());
 
-		algo1.write_rmx_raw();
+		algo1.write_rmx();
 		
 		stepTime   = System.currentTimeMillis() - startStepTime;
 		System.out.println("---Temps: "+stepTime+" ---");

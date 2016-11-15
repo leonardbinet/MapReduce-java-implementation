@@ -3,7 +3,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 
-public class ConnectionSSH extends Thread{
+public class ConnectSSH extends Thread{
 	
 	private String machine;
 	private int timeout;
@@ -23,7 +23,7 @@ public class ConnectionSSH extends Thread{
 		return connection_status;
 	}
 
-	public ConnectionSSH(String machine, int timeout){
+	public ConnectSSH(String machine, int timeout){
 		this.machine=machine;
 		this.timeout = timeout;
 	}

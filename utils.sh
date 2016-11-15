@@ -1,9 +1,15 @@
 #!/bin/bash
 
 # CONFIG
-racine="/cal/homes/lbinet/workspace/Sys_distribue"
+racine="/cal/homes/lbinet/workspace/Sys_distribue/"
 
-# paramètre $2 pour la machine à choisir, par défaut C133-22
+# CHOIX DE L'INPUT
+input="Input/domaine_public_fluvial.txt"
+#input="Input/Input.txt"
+#input="Input/deontologie_police_nationale.txt"
+#input="Input/forestier_mayotte.txt"
+
+# paramètre $2 pour la machine à choisir, par défaut C133-01
 if [ -z "$2" ]
 then
     machine="C133-01"
@@ -25,8 +31,8 @@ then
 
 elif [ $1 = "input" ]
 then
-    echo "Transfert des fichiers: liste_machines.txt et Input.txt"
-    scp -i ~/.ssh/telecom liste_machines.txt Input.txt lbinet@ssh.enst.fr:$racine
+    echo "Transfert des fichiers d'Input: "
+    scp -i ~/.ssh/telecom -r Input lbinet@ssh.enst.fr:$racine
 
 elif [ $1 = "git" ]
 then
@@ -37,7 +43,7 @@ then
 elif [ $1 = "run" ]
 then
     echo "Lancement du script: run"
-    ssh telecom "ssh -o StrictHostKeyChecking=no "$machine" 'cd "$racine" && java -jar MASTER.jar Input/domaine_public_fluvial.txt'"
+    ssh telecom "ssh -o StrictHostKeyChecking=no "$machine" 'cd "$racine" && java -jar MASTER.jar "$input"'"
 elif [ $1 = "runslave" ]
 then
     echo "Lancement du script: "
@@ -46,15 +52,15 @@ then
 elif [ $1 = "purge_files" ]
 then
     echo "Lancement du script: purge (suppression des Sx Umx Smx Rmx Result)"
-    ssh telecom "cd "$racine" && rm Sx/* Umx/* Smx/* Rmx/* Result/* && echo 'Fichiers purgés.'"
+    ssh telecom "cd "$racine"Jobs && rm Sx/* Umx/* Smx/* Rmx/* Result/* && echo 'Fichiers purgés.'"
 elif [ $1 = "purge_folders" ]
 then
     echo "Lancement du script: purge (suppression des Sx Umx Smx Rmx Result)"
-    ssh telecom "cd "$racine" && rm -r Sx Umx Smx Rmx Result && echo 'Fichiers purgés.' && ls"
+    ssh telecom "cd "$racine"Jobs && rm -r Sx Umx Smx Rmx Result && echo 'Fichiers purgés.' && ls"
 elif [ $1 = "mkdir" ]
 then
     echo "Creation arborescence :"
-    ssh telecom "cd "$racine" && mkdir Sx Umx Smx Rmx Result && echo 'Création des dossiers réalisée' && ls"
+    ssh telecom "cd "$racine"Jobs && mkdir Sx Umx Smx Rmx Result && echo 'Création des dossiers réalisée' && ls"
 else
     echo "Argument invalide: run, git, jar, purge_files, purge_folders, mkdir, input."
     exit 1

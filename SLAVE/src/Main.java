@@ -20,22 +20,10 @@ public class Main {
 	    return Integer.parseInt(id);
 	}
 	
-	
 
     public static void main(String[] args) {
-    	// racine: 
-    	String dossier = "/cal/homes/lbinet/workspace/Sys_distribue/";
-    	// lieu où sont stockés les Sx
-    	String dossierSx = dossier+"Sx/";
-    	// lieu où sont stockés les Umx
-    	String dossierUmx = dossier+"Umx/";
-    	// lieu où sont stockés les Smx
-    	String dossierSmx = dossier+"Smx/";
-    	// lieu où sont stockés les Rmx
-    	String dossierRmx = dossier+"Rmx/";
-    	
-    	
-    	
+    	Config config = new Config();
+	
     	// Verification qu'on a bien un argument de passé
         if(args.length == 0)
         {
@@ -45,15 +33,12 @@ public class Main {
         else if (args[0].equals("modeSXUMX")){
         	
         	// chemin de lecture Sx
-    		Path sx_input = Paths.get(dossierSx + args[1]);
-    		
+    		Path sx_input = Paths.get(config.dossierSx + args[1]);
     		// obtention de l'id à partir du nom de notre um
 		    Integer id =  getId(args[1]);
-
     		// chemin d'ecriture Umx
-    		Path umx_output = Paths.get(dossierUmx+"Um"+id);
-
-    		// lecture du fichier entrée
+    		Path umx_output = Paths.get(config.dossierUmx+"Um"+id);
+    		// lecture du fichier Sx
     		List<String> lignes;
     		try {
     			lignes = Files.readAllLines(sx_input, Charset.forName("UTF-8"));
@@ -92,7 +77,7 @@ public class Main {
     		try {
     			
     			for (String um_name:um_names){
-    				Path Umx_input = Paths.get(dossierUmx+um_name);
+    				Path Umx_input = Paths.get(config.dossierUmx+um_name);
     				List<String> lignes;
     				lignes = Files.readAllLines(Umx_input, Charset.forName("UTF-8"));
     				allLignes.addAll(lignes);
@@ -108,11 +93,11 @@ public class Main {
     					//System.out.println(word+" 1");
     				}    				
     			}
-    			Path smx_output = Paths.get(dossierSmx+sm_name); 		// chemin d'ecriture Smx 
+    			Path smx_output = Paths.get(config.dossierSmx+sm_name); 		// chemin d'ecriture Smx 
     			Files.write(smx_output, smx_to_write, Charset.forName("UTF-8"));
     			
     			// Ecriture de Rmx
-    			Path rmx_output = Paths.get(dossierRmx+"Rm"+id); // chemin d'ecriture Rmx 
+    			Path rmx_output = Paths.get(config.dossierRmx+"Rm"+id); // chemin d'ecriture Rmx 
     			String rmx = key+" "+smx_to_write.size();
     			Files.write(rmx_output, Arrays.asList(rmx), Charset.forName("UTF-8"));
     			System.out.println(rmx);

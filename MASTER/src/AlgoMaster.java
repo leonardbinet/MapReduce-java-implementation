@@ -21,7 +21,6 @@ public class AlgoMaster {
 	// prend un nom de chemin output en argument
 	private Path input_path;
 	private ArrayList<String> input_content;
-	private String root_folder;
 	private ArrayList<String> sx_list;
 	private ArrayList<String> machine_list;
 	private HashMap<String, String> umx_machine;
@@ -35,9 +34,8 @@ public class AlgoMaster {
 	private ArrayList<String> rmx_final_raw;
 	private Config config;
 
-	public AlgoMaster(Path input_file, String root_folder){
+	public AlgoMaster(Path input_file){
 		this.input_path = input_file;
-		this.root_folder = root_folder;
 		this.config = new Config();
 	}
 	
@@ -97,20 +95,26 @@ public class AlgoMaster {
 	
 	public void split() throws IOException{
 		// on lit le fichier Input.txt ligne par ligne
-		String sx_Folder = this.root_folder+"Sx/";
+		String sx_Folder = this.config.dossierSx;
 		ArrayList<String> sx_list = new ArrayList<String>();
 		List<String> lignes;
 		Integer i = 0;
 		lignes = this.input_content;
-		for (String ligne :lignes){
-			// on affiche la ligne
+		ArrayList<String> bloc = new ArrayList<String>();
+		
+		for (int k=0; k< lignes.size(); k++){
+			String ligne = lignes.get(k);
 			System.out.println(ligne);
-			// on écrit par blocs de 100 lignes
-			// on l'écrit dans un fichier nommé S<num ligne>
-			Path sx = Paths.get(sx_Folder+"S"+i);
-			Files.write(sx, Arrays.asList(ligne), Charset.forName("UTF-8"));
-			sx_list.add("S"+i);
-			i += 1;
+			bloc.add(ligne);
+			if (k+1 % this.config.lines_per_split == 0 || k==lignes.size()-1){
+				// on écrit par blocs de 100 lignes
+				// on l'écrit dans un fichier nommé S<num ligne>	
+				Path sx = Paths.get(sx_Folder+"S"+i);
+				Files.write(sx, bloc, Charset.forName("UTF-8"));
+				sx_list.add("S"+i);
+				i += 1;
+				bloc = new ArrayList<String>();
+			}
 		}
 		this.sx_list = sx_list;
 	}
@@ -151,7 +155,7 @@ public class AlgoMaster {
 				
 				System.out.println("Envoi de "+split+" à la machine "+machine+" devant nous renvoyer Um"+id);
 				
-            	String command = "cd workspace/Sys_distribue;java -jar SLAVE.jar modeSXUMX S"+id;
+            	String command = "cd "+this.config.racine_slave+";java -jar SLAVE.jar modeSXUMX S"+id;
 				LaunchSlave slave = new LaunchSlave(machine, command, this.config.timeout);
                 slave.start(); 
                 slaves_dict.put(slave,id);
@@ -235,6 +239,8 @@ public class AlgoMaster {
 		// on envoie les ordres contenus dans this.machine_command
 		Integer max_threads = this.machine_list.size()*this.config.max_thread_per_machine;
 		ArrayList<List<String>> machine_command_to_compute = this.machine_command;
+		ArrayList<List<String>> machine_command_failed = new ArrayList<List<String>>();
+
 		// initiation des résultats
 		this.rmx_machine = new HashMap<String, String>();
 		this.rmx_final = new ArrayList<ReduceResult>();
@@ -248,7 +254,7 @@ public class AlgoMaster {
             for (List<String>  entry: machine_command_to_compute) {
 				System.out.println("Envoi de la commande "+ entry.get(1)+" à la machine "+entry.get(0)+".");
             	LaunchSlave slave = new LaunchSlave(entry.get(0),
-                        "cd workspace/Sys_distribue;java -jar SLAVE.jar "+entry.get(1), this.config.timeout);
+                        "cd "+this.config.racine_slave+";java -jar SLAVE.jar "+entry.get(1), this.config.timeout);
                 slave.start();
                 slaves_dict.put(slave,entry);
                 limit -= 1;
@@ -261,11 +267,19 @@ public class AlgoMaster {
                 	LaunchSlave slave = entry.getKey();
                     slave.join();
                     // on attend que le thread soit terminé pour ajouter au dictionnaire
-                    this.rmx_machine.put(slave.get_response().get(0), slave.getMachine());
-                    ReduceResult result = new ReduceResult(slave.get_response().get(0));
-                    this.rmx_final.add(result);
-                    this.rmx_final_raw.add(slave.get_response().get(0));
-                    machine_command_to_compute.remove(entry.getValue());
+                    if (slave.get_response().size()!=0){
+                    	this.rmx_machine.put(slave.get_response().get(0), slave.getMachine());
+                        ReduceResult result = new ReduceResult(slave.get_response().get(0));
+                        this.rmx_final.add(result);
+                        this.rmx_final_raw.add(slave.get_response().get(0));
+                        machine_command_to_compute.remove(entry.getValue());
+                    }
+                    else {
+                    	List<String> mach_comm = Arrays.asList(slave.getMachine(),slave.get_command());
+                    	machine_command_failed.add(mach_comm);
+                    	System.out.println("-------\nERROR: machine "+slave.getMachine()+" commande: "+slave.get_command()+"\n------");
+                    }
+                    
                 } catch (InterruptedException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
@@ -285,10 +299,14 @@ public class AlgoMaster {
 		Collections.sort(this.rmx_final, result_comp);
 		return this.rmx_final;
 	}
-	public void write_rmx_raw() throws IOException{
-		String rmx_Folder = this.root_folder+"Result/";
+	public void write_rmx() throws IOException{
+		String rmx_Folder = this.config.dossierResult;
 		Path output = Paths.get(rmx_Folder+"Rmx");
-		Files.write(output, this.rmx_final_raw, Charset.forName("UTF-8"));
+		ArrayList<String> converted = new ArrayList<String>();
+		for (ReduceResult resultat :this.rmx_final){
+			converted.add(resultat.toString());
+		}
+		Files.write(output, converted, Charset.forName("UTF-8"));
 	}
 	public void set_filtered_words(List<String> filtered_words){
 		this.mot_filtres = filtered_words;
