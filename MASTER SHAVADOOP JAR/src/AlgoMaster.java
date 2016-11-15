@@ -33,7 +33,13 @@ public class AlgoMaster {
 	private List<String> mot_filtres;
 	private ArrayList<ReduceResult> rmx_final;
 	private ArrayList<String> rmx_final_raw;
+	private Config config;
 
+	public AlgoMaster(Path input_file, String root_folder){
+		this.input_path = input_file;
+		this.root_folder = root_folder;
+		this.config = new Config();
+	}
 	
 	public class ReduceResult {
 		  private String key;
@@ -59,13 +65,15 @@ public class AlgoMaster {
 		    return b.getValue().compareTo(a.getValue());
 		}
 	};
-
-	public AlgoMaster(Path input_file, String root_folder){
-		this.input_path = input_file;
-		this.root_folder = root_folder;
+	
+	public Integer getId(String rawName){
+		Pattern r = Pattern.compile("(\\d+)");
+	    Matcher m = r.matcher(rawName);
+	    m.find();
+	    String id =  m.group(0);
+	    return Integer.parseInt(id);
 	}
-	
-	
+
 	public void cleanImportInput() throws IOException{
 		// renvoi liste de string
 		Path input_file = this.input_path;
@@ -97,13 +105,12 @@ public class AlgoMaster {
 		for (String ligne :lignes){
 			// on affiche la ligne
 			System.out.println(ligne);
-			
 			// on écrit par blocs de 100 lignes
 			// on l'écrit dans un fichier nommé S<num ligne>
 			Path sx = Paths.get(sx_Folder+"S"+i);
 			Files.write(sx, Arrays.asList(ligne), Charset.forName("UTF-8"));
-			i += 1;
 			sx_list.add("S"+i);
+			i += 1;
 		}
 		this.sx_list = sx_list;
 	}
@@ -119,45 +126,54 @@ public class AlgoMaster {
 	public void sendMapOrderToMachines(){
 		// cette méthode créé le dictionnaire Umx-machines
 		// idéalement on réalise un scp pour envoyer les fichiers (ici on triche)
-		// on lance la procédure s'il y a des machines
-		// TODO répartir si machines < jobs
 		
 		// Initialisation de notre dictionnaire (qui trace ce que l'on a envoyé)
 		this.umx_machine = new HashMap<String,String>();
 		// Initialisation de notre dictionnaire de réponse
 		this.machine_keys = new HashMap<String, ArrayList<String>>();
 		this.umx_keys = new HashMap<String, ArrayList<String>>();
+		
+		ArrayList<String> splits_to_send = this.sx_list;
+		Integer nbr_mach =  this.machine_list.size();
+		Integer max_threads = nbr_mach*this.config.max_thread_per_machine;
+		
+		while (! splits_to_send.isEmpty()) {
+            Integer limit = Math.min(max_threads, splits_to_send.size());
+            // slave-id dict pour savoir de qui on reçoit les réponses
+            HashMap<LaunchSlaveShavadoop,Integer> slaves_dict = new HashMap<LaunchSlaveShavadoop,Integer>();
 
-		// on divise le nombre de split par le nombre de machines
-		if (this.machine_list != null) {
-			Integer nbr_mach =  this.machine_list.size();
-			Integer nbr_splits =  this.sx_list.size();
-			ArrayList<LaunchSlaveShavadoop> slaves = new ArrayList<LaunchSlaveShavadoop>();
-            for (int k = 0; k < nbr_splits; k++) {
-            	// on prend la k module nbr_mach ième machine
+            for (int k = 0; k < limit; k++) {
+            	String split = splits_to_send.get(k);
+            	Integer id = getId(split);
 				String machine = this.machine_list.get(k % nbr_mach);
-				this.umx_machine.put("Um"+k, machine);
-				System.out.println("Envoi de S"+k+" à la machine "+machine+" devant nous renvoyer Um"+k);
-            	LaunchSlaveShavadoop slave = new LaunchSlaveShavadoop(machine,
-                        "cd workspace/Sys_distribue;java -jar SLAVESHAVADOOP.jar modeSXUMX S"+k, 20);
+				// on enregistre le dictionnaire Um-machine
+				this.umx_machine.put("Um"+id, machine);
+				
+				System.out.println("Envoi de "+split+" à la machine "+machine+" devant nous renvoyer Um"+id);
+				
+            	String command = "cd workspace/Sys_distribue;java -jar SLAVESHAVADOOP.jar modeSXUMX S"+id;
+				LaunchSlaveShavadoop slave = new LaunchSlaveShavadoop(machine, command, this.config.timeout);
                 slave.start(); 
-                slaves.add(slave);
+                slaves_dict.put(slave,id);
 			}
-            for (int k = 0; k < nbr_splits; k++) {
+            
+            for (Map.Entry<LaunchSlaveShavadoop,Integer> entry:slaves_dict.entrySet()) {
                 try {
-                	LaunchSlaveShavadoop slave = slaves.get(k);
+                	LaunchSlaveShavadoop slave = entry.getKey();
+                	Integer id = entry.getValue();
                     slave.join();
                     // on attend que le thread soit terminé pour ajouter au dictionnaire
                     this.machine_keys.put(slave.getMachine(), slave.get_response());
-                    this.umx_keys.put("Um"+k, slave.get_response());
+                    this.umx_keys.put("Um"+id, slave.get_response());
+                    // on supprime de la liste à traiter
+                    splits_to_send.remove("S"+id);
                 } catch (InterruptedException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
-            }
-            
-            //System.out.println("Mapping terminé");
-        }
+            }	
+		}
+		
 	}
 	public HashMap<String, String> getUmxMachineDict(){
 		return this.umx_machine;
@@ -217,7 +233,7 @@ public class AlgoMaster {
 	
 	public void sendReduceOrder(){
 		// on envoie les ordres contenus dans this.machine_command
-		Integer max_threads = this.machine_list.size()*3;
+		Integer max_threads = this.machine_list.size()*this.config.max_thread_per_machine;
 		ArrayList<List<String>> machine_command_to_compute = this.machine_command;
 		// initiation des résultats
 		this.rmx_machine = new HashMap<String, String>();
@@ -225,31 +241,31 @@ public class AlgoMaster {
 		this.rmx_final_raw = new ArrayList<String>();
 		
 		while (! machine_command_to_compute.isEmpty()) {
-            ArrayList<LaunchSlaveShavadoop> slaves = new ArrayList<LaunchSlaveShavadoop>();
+			
+            HashMap<LaunchSlaveShavadoop,List<String>> slaves_dict = new HashMap<LaunchSlaveShavadoop,List<String>>();
             Integer limit = Math.min(max_threads, machine_command_to_compute.size());
             
             for (List<String>  entry: machine_command_to_compute) {
 				System.out.println("Envoi de la commande "+ entry.get(1)+" à la machine "+entry.get(0)+".");
             	LaunchSlaveShavadoop slave = new LaunchSlaveShavadoop(entry.get(0),
-                        "cd workspace/Sys_distribue;java -jar SLAVESHAVADOOP.jar "+entry.get(1), 20);
+                        "cd workspace/Sys_distribue;java -jar SLAVESHAVADOOP.jar "+entry.get(1), this.config.timeout);
                 slave.start();
-                slaves.add(slave);
+                slaves_dict.put(slave,entry);
                 limit -= 1;
                 if (limit.equals(0)){
                 	break;
                 }
 			}
-            for (int k = 0; k < slaves.size(); k++) {
+            for (Map.Entry<LaunchSlaveShavadoop,List<String>> entry:slaves_dict.entrySet()) {
                 try {
-                	LaunchSlaveShavadoop slave = slaves.get(k);
+                	LaunchSlaveShavadoop slave = entry.getKey();
                     slave.join();
                     // on attend que le thread soit terminé pour ajouter au dictionnaire
                     this.rmx_machine.put(slave.get_response().get(0), slave.getMachine());
                     ReduceResult result = new ReduceResult(slave.get_response().get(0));
                     this.rmx_final.add(result);
                     this.rmx_final_raw.add(slave.get_response().get(0));
-                    machine_command_to_compute.remove(k);
-                    slaves.remove(k);
+                    machine_command_to_compute.remove(entry.getValue());
                 } catch (InterruptedException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();

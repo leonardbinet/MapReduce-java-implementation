@@ -61,10 +61,6 @@ public class Main {
 		HashMap<String,String> umx_machine = algo1.getUmxMachineDict();
 		System.out.println("Notre dictionnaire Umx - machine: \n"+umx_machine.toString());
 
-		algo1.reverse_index();
-
-		HashMap<String, HashSet<String>> key_umxs = algo1.getKeyUmxs();
-		System.out.println("Notre dictionnaire key - [Umx] : \n"+ key_umxs.toString());
 		
 		stepTime   = System.currentTimeMillis() - startStepTime;
 		System.out.println("---Temps: "+stepTime+" ---");
@@ -72,9 +68,12 @@ public class Main {
 		
 		System.out.println("---------------------------------\nSHUFFLE\n---------------------------------");
 		startStepTime = System.currentTimeMillis();
-
+		
+		algo1.reverse_index();
+		HashMap<String, HashSet<String>> key_umxs = algo1.getKeyUmxs();
+		System.out.println("Notre dictionnaire key - [Umx] : \n"+ key_umxs.toString());
 		algo1.prepare_job_dispatch();
-		System.out.println(algo1.get_machine_command().toString());
+		
 		
 		stepTime   = System.currentTimeMillis() - startStepTime;
 		System.out.println("---Temps: "+stepTime+" ---");
@@ -93,8 +92,8 @@ public class Main {
 		
 		
 		algo1.set_filtered_words(config.filtered_words);
-		System.out.println("Réponses: \n"+algo1.get_rmx_ordered().toString());
-		System.out.println("Réponses filtrées: \n"+algo1.getFilteredResults().toString());
+		System.out.println("\nRéponses: \n"+algo1.get_rmx_ordered().toString());
+		System.out.println("\nRéponses filtrées: \n"+algo1.getFilteredResults().toString());
 
 		algo1.write_rmx_raw();
 		

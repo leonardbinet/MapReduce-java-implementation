@@ -11,10 +11,12 @@ public class CheckMachinesUp {
 	private Path file_machines_to_test;
 	private Path file_machines_ok;
 	private ArrayList<String> liste_machines_ok;
+	private Config config;
 	
 	public CheckMachinesUp(String input_path, String output_path){
 		this.file_machines_to_test = Paths.get(input_path);
 		this.file_machines_ok = Paths.get(output_path);
+		this.config = new Config();
 	}
 	
 	public void test_Machines_Up(){
@@ -27,9 +29,9 @@ public class CheckMachinesUp {
 			machines = Files.readAllLines(filein, Charset.forName("UTF-8"));
 			for (String machine : machines) {
 				/*
-				 * on teste la connection SSH pendant 7 secondes maximum
+				 * on teste la connection SSH pendant 'timeout' secondes maximum
 				 */
-				ConnectionSSH test = new ConnectionSSH(machine, 7);
+				ConnectionSSH test = new ConnectionSSH(machine, this.config.test_timeout);
 				test.start();
 				listeTests.add(test);
 			}

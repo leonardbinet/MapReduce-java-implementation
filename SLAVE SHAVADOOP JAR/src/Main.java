@@ -11,7 +11,16 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Main {
-
+	
+	public static Integer getId(String rawName){
+		Pattern r = Pattern.compile("(\\d+)");
+	    Matcher m = r.matcher(rawName);
+	    m.find();
+	    String id =  m.group(0);
+	    return Integer.parseInt(id);
+	}
+	
+	
 
     public static void main(String[] args) {
     	// racine: 
@@ -25,6 +34,8 @@ public class Main {
     	// lieu où sont stockés les Rmx
     	String dossierRmx = dossier+"Rmx/";
     	
+    	
+    	
     	// Verification qu'on a bien un argument de passé
         if(args.length == 0)
         {
@@ -35,13 +46,9 @@ public class Main {
         	
         	// chemin de lecture Sx
     		Path sx_input = Paths.get(dossierSx + args[1]);
+    		
     		// obtention de l'id à partir du nom de notre um
-		    // Create a Pattern object
-		    Pattern r = Pattern.compile("(\\d+)");
-		    // Now create matcher object.
-		    Matcher m = r.matcher(args[1]);
-		    m.find();
-		    String id =  m.group(0);
+		    Integer id =  getId(args[1]);
 
     		// chemin d'ecriture Umx
     		Path umx_output = Paths.get(dossierUmx+"Um"+id);
@@ -68,23 +75,17 @@ public class Main {
     		}
         }
         else if (args[0].equals("modeUMXSMX")){
-        	
-        
-        	String key = args[1]; 									// clé demandée
-        	String sm_name = args[2]; 								// nom du fichier de sortie
-        	// obtention de l'id à partir du nom de notre um
-		    // Create a Pattern object
-		    Pattern r = Pattern.compile("(\\d+)");
-		    // Now create matcher object.
-		    Matcher m = r.matcher(sm_name);
-		    m.find();
-		    String id =  m.group(0);
-    		
-        	HashSet<String> um_names = new HashSet<String>(); 	// noms des fichiers entrée
+        	// clé demandée
+        	String key = args[1];
+        	// nom du fichier de sortie sm
+        	String sm_name = args[2]; 								
+        	// obtention de l'id à partir du nom de notre sm
+		    Integer id =  getId(sm_name);
+		    // on récupére les fichiers um
+        	HashSet<String> um_names = new HashSet<String>(); 	
         	for(int i=3; i <= args.length -1; i++) {
         		um_names.add(args[i]);
         	    }
-        	//System.out.println("Création du fichier \""+sm_name+"\" pour la clé \""+key+"\" à partir des fichiers "+um_names.toString());
         	
     		// lecture des fichiers d'entrée Umx
     		List<String> allLignes = new ArrayList<String>(); 
