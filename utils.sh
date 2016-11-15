@@ -21,7 +21,7 @@ then
 elif [ $1 = "jar" ]
 then
     echo "Transfert des jars: "
-    scp -i ~/.ssh/telecom SLAVESHAVADOOP.jar MASTERSHAVADOOP.jar lbinet@ssh.enst.fr:$racine
+    scp -i ~/.ssh/telecom SLAVE.jar MASTER.jar lbinet@ssh.enst.fr:$racine
 
 elif [ $1 = "input" ]
 then
@@ -37,11 +37,11 @@ then
 elif [ $1 = "run" ]
 then
     echo "Lancement du script: run"
-    ssh telecom "ssh -o StrictHostKeyChecking=no "$machine" 'cd "$racine" && java -jar MASTERSHAVADOOP.jar Input/domaine_public_fluvial.txt'"
+    ssh telecom "ssh -o StrictHostKeyChecking=no "$machine" 'cd "$racine" && java -jar MASTER.jar Input/domaine_public_fluvial.txt'"
 elif [ $1 = "runslave" ]
 then
     echo "Lancement du script: "
-    ssh telecom "ssh -o StrictHostKeyChecking=no "$machine" 'cd "$racine" && java -jar SLAVESHAVADOOP.jar modeUMXSMX car Sm1 Um1 Um2'"
+    ssh telecom "ssh -o StrictHostKeyChecking=no "$machine" 'cd "$racine" && java -jar SLAVE.jar modeUMXSMX car Sm1 Um1 Um2'"
 
 elif [ $1 = "purge_files" ]
 then

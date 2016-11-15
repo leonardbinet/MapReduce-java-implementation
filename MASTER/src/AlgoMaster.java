@@ -140,7 +140,7 @@ public class AlgoMaster {
 		while (! splits_to_send.isEmpty()) {
             Integer limit = Math.min(max_threads, splits_to_send.size());
             // slave-id dict pour savoir de qui on reçoit les réponses
-            HashMap<LaunchSlaveShavadoop,Integer> slaves_dict = new HashMap<LaunchSlaveShavadoop,Integer>();
+            HashMap<LaunchSlave,Integer> slaves_dict = new HashMap<LaunchSlave,Integer>();
 
             for (int k = 0; k < limit; k++) {
             	String split = splits_to_send.get(k);
@@ -151,15 +151,15 @@ public class AlgoMaster {
 				
 				System.out.println("Envoi de "+split+" à la machine "+machine+" devant nous renvoyer Um"+id);
 				
-            	String command = "cd workspace/Sys_distribue;java -jar SLAVESHAVADOOP.jar modeSXUMX S"+id;
-				LaunchSlaveShavadoop slave = new LaunchSlaveShavadoop(machine, command, this.config.timeout);
+            	String command = "cd workspace/Sys_distribue;java -jar SLAVE.jar modeSXUMX S"+id;
+				LaunchSlave slave = new LaunchSlave(machine, command, this.config.timeout);
                 slave.start(); 
                 slaves_dict.put(slave,id);
 			}
             
-            for (Map.Entry<LaunchSlaveShavadoop,Integer> entry:slaves_dict.entrySet()) {
+            for (Map.Entry<LaunchSlave,Integer> entry:slaves_dict.entrySet()) {
                 try {
-                	LaunchSlaveShavadoop slave = entry.getKey();
+                	LaunchSlave slave = entry.getKey();
                 	Integer id = entry.getValue();
                     slave.join();
                     // on attend que le thread soit terminé pour ajouter au dictionnaire
@@ -242,13 +242,13 @@ public class AlgoMaster {
 		
 		while (! machine_command_to_compute.isEmpty()) {
 			
-            HashMap<LaunchSlaveShavadoop,List<String>> slaves_dict = new HashMap<LaunchSlaveShavadoop,List<String>>();
+            HashMap<LaunchSlave,List<String>> slaves_dict = new HashMap<LaunchSlave,List<String>>();
             Integer limit = Math.min(max_threads, machine_command_to_compute.size());
             
             for (List<String>  entry: machine_command_to_compute) {
 				System.out.println("Envoi de la commande "+ entry.get(1)+" à la machine "+entry.get(0)+".");
-            	LaunchSlaveShavadoop slave = new LaunchSlaveShavadoop(entry.get(0),
-                        "cd workspace/Sys_distribue;java -jar SLAVESHAVADOOP.jar "+entry.get(1), this.config.timeout);
+            	LaunchSlave slave = new LaunchSlave(entry.get(0),
+                        "cd workspace/Sys_distribue;java -jar SLAVE.jar "+entry.get(1), this.config.timeout);
                 slave.start();
                 slaves_dict.put(slave,entry);
                 limit -= 1;
@@ -256,9 +256,9 @@ public class AlgoMaster {
                 	break;
                 }
 			}
-            for (Map.Entry<LaunchSlaveShavadoop,List<String>> entry:slaves_dict.entrySet()) {
+            for (Map.Entry<LaunchSlave,List<String>> entry:slaves_dict.entrySet()) {
                 try {
-                	LaunchSlaveShavadoop slave = entry.getKey();
+                	LaunchSlave slave = entry.getKey();
                     slave.join();
                     // on attend que le thread soit terminé pour ajouter au dictionnaire
                     this.rmx_machine.put(slave.get_response().get(0), slave.getMachine());

@@ -4,7 +4,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 
-public class LaunchSlaveShavadoop extends Thread{
+public class LaunchSlave extends Thread{
 	
 	private String machine;
 	private String command;
@@ -18,7 +18,7 @@ public class LaunchSlaveShavadoop extends Thread{
 	}
 
 
-	public LaunchSlaveShavadoop(String machine, String command, int timeout){
+	public LaunchSlave(String machine, String command, int timeout){
 		this.machine=machine;
 		this.timeout = timeout;
 		this.command = command;
