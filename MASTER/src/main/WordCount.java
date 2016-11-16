@@ -1,8 +1,8 @@
+package main;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -13,13 +13,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import network.CheckMachinesUp;
+import network.SshCommand;
+
 import java.lang.Integer;
 
-public class AlgoMaster {
+public class WordCount {
 	
-	// prend un path de fichier input en argument
-	// prend un nom de chemin output en argument
-	private Path input_path;
 	private ArrayList<String> input_content;
 	private ArrayList<String> sx_list;
 	private ArrayList<String> machine_list;
@@ -34,54 +35,83 @@ public class AlgoMaster {
 	private ArrayList<String> rmx_final_raw;
 	private Config config;
 
-	public AlgoMaster(Path input_file){
-		this.input_path = input_file;
-		this.config = new Config();
+	public WordCount(Config config){
+		this.config = config;
 	}
 	
-	public class ReduceResult {
-		  private String key;
-		  private Integer value;
-		  
-		  public ReduceResult(String rawResult) {
-			  Pattern r = Pattern.compile("(\\D+) (\\d+)");
-			  Matcher m = r.matcher(rawResult);
-			  m.find();
-			  this.key = m.group(1);
-			  this.value = Integer.parseInt(m.group(2));
-		  }
-		  public String toString(){
-			  return this.key +" "+ this.value.toString();
-		  };
-		  public String getKey() { return this.key; }
-		  public Integer getValue() { return this.value; }
+	public void computeWordCount() throws IOException, InterruptedException{
+		
+		// Initialize processing times
+		long startTime = System.currentTimeMillis();
+		long startStepTime;
+		long totalTime;
+
+		// Check responding machines
+		startStepTime = System.currentTimeMillis();
+		CheckMachinesUp checkMachines = new CheckMachinesUp(this.config.test_timeout);
+		checkMachines.readMachinesToTest(this.config.machinesToTestPath);
+		checkMachines.test_Machines_Up();
+		checkMachines.writeRespondingMachines(this.config.machinesRespondingPath);
+		ArrayList<String> liste_machines_ok = checkMachines.get_Machines_Up();
+		System.out.println("---Time: "+(System.currentTimeMillis() - startStepTime)+" ---");
+		
+		// Import and clean file
+		startStepTime = System.currentTimeMillis();
+		this.cleanImportInput();
+		System.out.println("---Time: "+(System.currentTimeMillis() - startStepTime)+" ---");
+		
+		// Split file (parts to be processed to slaves)
+		startStepTime = System.currentTimeMillis();
+		this.split();
+		System.out.println("---Time: "+(System.currentTimeMillis() - startStepTime)+" ---");
+		
+		// Send map order to slaves
+		startStepTime = System.currentTimeMillis();
+		this.set_machines(liste_machines_ok);
+		this.sendMapOrderToMachines();
+		
+		// And print Umx-Machine dictionnary 
+		HashMap<String,String> umx_machine = this.getUmxMachineDict();
+		System.out.println("Dictionnary Umx-Machine: \n"+umx_machine.toString());
+		System.out.println("---Time: "+(System.currentTimeMillis() - startStepTime)+" ---");
+		
+		// Shuffling: reverse index and prepare job dispatch
+		startStepTime = System.currentTimeMillis();
+		this.reverse_index();
+		HashMap<String, HashSet<String>> key_umxs = this.getKeyUmxs();
+		System.out.println("Dictionnary key - [Umx] : \n"+ key_umxs.toString());
+		this.prepare_job_dispatch();
+		System.out.println("---Time: "+(System.currentTimeMillis() - startStepTime)+" ---");
+		
+		// Send reduce order to slaves
+		startStepTime = System.currentTimeMillis();
+		this.sendReduceOrder();
+		System.out.println("---Time: "+(System.currentTimeMillis() - startStepTime)+" ---");
+		
+		
+		startStepTime = System.currentTimeMillis();
+		this.set_filtered_words(config.filtered_words);
+		System.out.println("\nResult: \n"+this.get_rmx_ordered().toString());
+		System.out.println("\nFiltered result: \n"+this.getFilteredResults().toString());
+		this.write_rmx();
+		System.out.println("---Time: "+(System.currentTimeMillis() - startStepTime)+" ---");
+		totalTime = System.currentTimeMillis() - startTime ;
+		System.out.println("---TOTAL TIME: "+totalTime+" ---");
 	}
 	
-	Comparator<ReduceResult> result_comp = new Comparator<ReduceResult>() {
-		@Override
-		public int compare(ReduceResult a, ReduceResult b) {
-		    return b.getValue().compareTo(a.getValue());
-		}
-	};
-	
-	public Integer getId(String rawName){
-		Pattern r = Pattern.compile("(\\d+)");
-	    Matcher m = r.matcher(rawName);
-	    m.find();
-	    String id =  m.group(0);
-	    return Integer.parseInt(id);
-	}
 
 	public void cleanImportInput() throws IOException{
-		// renvoi liste de string
-		Path input_file = this.input_path;
+		System.out.println(
+				"---------------------------------\n"
+				+ "IMPORT AND CLEAN INPUT\n"
+				+ "---------------------------------");
 		List<String> lignes = new ArrayList<String>();
 		ArrayList<String> lignes_clean = new ArrayList<String>();
-		lignes = Files.readAllLines(input_file, Charset.forName("UTF-8"));
+		lignes = Files.readAllLines(this.config.inputFilePath, Charset.forName("UTF-8"));
 		for (String ligne :lignes ){
-			// on enlève les lignes vides
+			// get rid of empty lines
 			if (ligne.length()!=0){
-				// on enlève les caractères spéciaux
+				// get rid of special characters
 				ligne = ligne.replaceAll("[^\\p{L}\\p{Z}]","");
 				ligne = ligne.trim();
 				ligne = ligne.toLowerCase();
@@ -94,8 +124,11 @@ public class AlgoMaster {
 	}
 	
 	public void split() throws IOException{
-		// on lit le fichier Input.txt ligne par ligne
-		String sx_Folder = this.config.dossierSx;
+		System.out.println(
+				"---------------------------------\n"
+				+ "SPLIT\n"
+				+ "---------------------------------");
+		Path sxFolder = this.config.folderSx;
 		ArrayList<String> sx_list = new ArrayList<String>();
 		List<String> lignes;
 		Integer i = 0;
@@ -109,8 +142,8 @@ public class AlgoMaster {
 			if (k+1 % this.config.lines_per_split == 0 || k==lignes.size()-1){
 				// on écrit par blocs de 100 lignes
 				// on l'écrit dans un fichier nommé S<num ligne>	
-				Path sx = Paths.get(sx_Folder+"S"+i);
-				Files.write(sx, bloc, Charset.forName("UTF-8"));
+				Path sxi = sxFolder.resolve("S"+i);
+				Files.write(sxi, bloc, Charset.forName("UTF-8"));
 				sx_list.add("S"+i);
 				i += 1;
 				bloc = new ArrayList<String>();
@@ -127,7 +160,19 @@ public class AlgoMaster {
 		this.machine_list = liste_machines;
 	}
 	
+	public Integer getId(String rawName){
+		Pattern r = Pattern.compile("(\\d+)");
+	    Matcher m = r.matcher(rawName);
+	    m.find();
+	    String id =  m.group(0);
+	    return Integer.parseInt(id);
+	}
+	
 	public void sendMapOrderToMachines(){
+		System.out.println(
+				"---------------------------------\n"
+				+ "MAP\n"
+				+ "---------------------------------");
 		// cette méthode créé le dictionnaire Umx-machines
 		// idéalement on réalise un scp pour envoyer les fichiers (ici on triche)
 		
@@ -144,7 +189,7 @@ public class AlgoMaster {
 		while (! splits_to_send.isEmpty()) {
             Integer limit = Math.min(max_threads, splits_to_send.size());
             // slave-id dict pour savoir de qui on reçoit les réponses
-            HashMap<LaunchSlave,Integer> slaves_dict = new HashMap<LaunchSlave,Integer>();
+            HashMap<SshCommand,Integer> slaves_dict = new HashMap<SshCommand,Integer>();
 
             for (int k = 0; k < limit; k++) {
             	String split = splits_to_send.get(k);
@@ -155,15 +200,15 @@ public class AlgoMaster {
 				
 				System.out.println("Envoi de "+split+" à la machine "+machine+" devant nous renvoyer Um"+id);
 				
-            	String command = "cd "+this.config.racine_slave+";java -jar SLAVE.jar modeSXUMX S"+id;
-				LaunchSlave slave = new LaunchSlave(machine, command, this.config.timeout);
+            	String command = "cd "+this.config.slaveJarLocation+";java -jar SLAVE.jar modeSXUMX S"+id;
+				SshCommand slave = new SshCommand(false, machine, command, this.config.timeout);
                 slave.start(); 
                 slaves_dict.put(slave,id);
 			}
             
-            for (Map.Entry<LaunchSlave,Integer> entry:slaves_dict.entrySet()) {
+            for (Map.Entry<SshCommand,Integer> entry:slaves_dict.entrySet()) {
                 try {
-                	LaunchSlave slave = entry.getKey();
+                	SshCommand slave = entry.getKey();
                 	Integer id = entry.getValue();
                     slave.join();
                     // on attend que le thread soit terminé pour ajouter au dictionnaire
@@ -188,13 +233,9 @@ public class AlgoMaster {
 	};
 	
 	public void reverse_index(){
-		// INPUT
-		//          Umx - [keys]
-		// OUTPUT
-		//          key - [Umxs]
-		
+		// INPUT 	Umx - [keys]
+		// OUTPUT	key - [Umxs]		
 		HashMap<String,HashSet<String>> inversed = new HashMap<String,HashSet<String>>(this.umx_keys.size());
-	    
 		for(Map.Entry<String, ArrayList<String>> entry : this.umx_keys.entrySet()) {
 	        for(String key : entry.getValue()) {    // entry.getValue() est ArrayList<String> (keys)         
 	            if(!inversed.containsKey(key)) { 
@@ -211,6 +252,11 @@ public class AlgoMaster {
 	}
 	
 	public void prepare_job_dispatch(){
+		System.out.println(
+				"---------------------------------\n"
+				+ "SHUFFLE\n"
+				+ "---------------------------------");
+
 		// à partir du dict machine_keys on va déterminer à qui on va envoyer quels jobs
 		// le dictionnaire machine => commande est enregistré en output
 		// version simple et débile, itération sur les clés
@@ -235,7 +281,14 @@ public class AlgoMaster {
 		this.machine_command = machine_command;
 	}
 	
+	
+	
+	
 	public void sendReduceOrder(){
+		System.out.println(
+				"---------------------------------\n"
+				+ "REDUCE\n"
+				+ "---------------------------------");
 		// on envoie les ordres contenus dans this.machine_command
 		Integer max_threads = this.machine_list.size()*this.config.max_thread_per_machine;
 		ArrayList<List<String>> machine_command_to_compute = this.machine_command;
@@ -248,13 +301,15 @@ public class AlgoMaster {
 		
 		while (! machine_command_to_compute.isEmpty()) {
 			
-            HashMap<LaunchSlave,List<String>> slaves_dict = new HashMap<LaunchSlave,List<String>>();
+            HashMap<SshCommand,List<String>> slaves_dict = new HashMap<SshCommand,List<String>>();
             Integer limit = Math.min(max_threads, machine_command_to_compute.size());
             
             for (List<String>  entry: machine_command_to_compute) {
 				System.out.println("Envoi de la commande "+ entry.get(1)+" à la machine "+entry.get(0)+".");
-            	LaunchSlave slave = new LaunchSlave(entry.get(0),
-                        "cd "+this.config.racine_slave+";java -jar SLAVE.jar "+entry.get(1), this.config.timeout);
+            	SshCommand slave = new SshCommand(
+            			false, 
+            			entry.get(0),
+                        "cd "+this.config.slaveJarLocation+";java -jar SLAVE.jar "+entry.get(1), this.config.timeout);
                 slave.start();
                 slaves_dict.put(slave,entry);
                 limit -= 1;
@@ -262,9 +317,9 @@ public class AlgoMaster {
                 	break;
                 }
 			}
-            for (Map.Entry<LaunchSlave,List<String>> entry:slaves_dict.entrySet()) {
+            for (Map.Entry<SshCommand,List<String>> entry:slaves_dict.entrySet()) {
                 try {
-                	LaunchSlave slave = entry.getKey();
+                	SshCommand slave = entry.getKey();
                     slave.join();
                     // on attend que le thread soit terminé pour ajouter au dictionnaire
                     if (slave.get_response().size()!=0){
@@ -295,13 +350,43 @@ public class AlgoMaster {
 	public HashMap<String, String> get_rmx_machine(){
 		return this.rmx_machine;
 	}
+	public class ReduceResult {
+		  private String key;
+		  private Integer value;
+		  
+		  public ReduceResult(String rawResult) {
+			  Pattern r = Pattern.compile("(\\D+) (\\d+)");
+			  Matcher m = r.matcher(rawResult);
+			  m.find();
+			  this.key = m.group(1);
+			  this.value = Integer.parseInt(m.group(2));
+		  }
+		  public String toString(){
+			  return this.key +" "+ this.value.toString();
+		  };
+		  public String getKey() { return this.key; }
+		  public Integer getValue() { return this.value; }
+	}
+	
+	Comparator<ReduceResult> result_comp = new Comparator<ReduceResult>() {
+		@Override
+		public int compare(ReduceResult a, ReduceResult b) {
+		    return b.getValue().compareTo(a.getValue());
+		}
+	};
+	
 	public ArrayList<ReduceResult> get_rmx_ordered(){
+		
 		Collections.sort(this.rmx_final, result_comp);
 		return this.rmx_final;
 	}
 	public void write_rmx() throws IOException{
-		String rmx_Folder = this.config.dossierResult;
-		Path output = Paths.get(rmx_Folder+"Rmx");
+		System.out.println(
+				"---------------------------------\n"
+				+ "RESULT\n"
+				+ "---------------------------------");
+		Path rmxFolder = this.config.folderResult;
+		Path output = rmxFolder.resolve("Results.txt");
 		ArrayList<String> converted = new ArrayList<String>();
 		for (ReduceResult resultat :this.rmx_final){
 			converted.add(resultat.toString());

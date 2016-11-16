@@ -1,3 +1,4 @@
+package network;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -5,13 +6,13 @@ import java.io.InputStreamReader;
 import java.util.concurrent.ArrayBlockingQueue;
 
 
-class LecteurFlux implements Runnable {
+class StreamReader implements Runnable {
 
     private final InputStream inputStream;
     ArrayBlockingQueue<String> output;
 
 
-    LecteurFlux(InputStream inputStream, ArrayBlockingQueue<String> output) {
+    StreamReader(InputStream inputStream, ArrayBlockingQueue<String> output) {
         this.inputStream = inputStream;
         this.output = output;
     }

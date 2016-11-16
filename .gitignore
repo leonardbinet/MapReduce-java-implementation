@@ -10,3 +10,6 @@ SLAVE\ SHAVADOOP\ JAR/bin/*
 
 # no job contents
 Jobs/*
+
+# pas les zips
+*.zip
