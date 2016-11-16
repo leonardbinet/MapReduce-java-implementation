@@ -9,6 +9,8 @@ On se base ici sur le fonctionnement de MapReduce, qui consiste à faire réalis
 
 L'opération réalisée ici est un word count. On doit simplement donner en paramètre le chemin du fichier dont on cherche à compter les mots lors du lancement du programme.
 
+![MapReduce](pictures/MapReduce.png)  
+
 #### Configuration
 Le code est en java, compilé en 1.7 (version machines de Telecom), et génère un jar MASTER et un jar SLAVE, respectivement sur le master et sur les slaves.
 
