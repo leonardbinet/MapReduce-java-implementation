@@ -1,9 +1,3 @@
-/LaunchSlave.class
-/ConnectSSH.class
-/SshCommand.class
-/WordCount$1.class
-/WordCount$ReduceResult.class
-/WordCount.class
-/StreamReader.class
 /main/
 /network/
+/wordcount/
