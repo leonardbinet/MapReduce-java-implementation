@@ -23,9 +23,8 @@ public class Main {
 		NetworkConfig networkConfig = new NetworkConfig();
 
 		
-		
 		// Launch wordcount
-		System.out.println("Launch programm on " + inputPath);
+		Utils.printBeautiful("Launch programm on " + inputPath);
 		WordCount wordcount = new WordCount(config, networkConfig);
 		wordcount.computeWordCount();
 		

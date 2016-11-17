@@ -12,6 +12,7 @@ public class Split {
 	
 	public static ArrayList<String> split(Path sxFolder, ArrayList<String> inputContent, Integer linesPerSplit) throws IOException{
 		Utils.printBeautiful("SPLIT");
+		System.out.println("File to send contains "+inputContent.size()+" lines.");
 		
 		ArrayList<String> sxList = new ArrayList<String>();
 		Integer i = 0;
@@ -19,11 +20,10 @@ public class Split {
 		
 		for (int k=0; k< inputContent.size(); k++){
 			String ligne = inputContent.get(k);
-			System.out.println(ligne);
+			// System.out.println(ligne);
 			bloc.add(ligne);
-			if (k+1 % linesPerSplit == 0 || k==inputContent.size()-1){
-				// on écrit par blocs de 100 lignes
-				// on l'écrit dans un fichier nommé S<num ligne>	
+			if ( ((k+1) % linesPerSplit) == 0 || k==inputContent.size()-1){
+				// line blocks
 				Path sxi = sxFolder.resolve("S"+i);
 				Files.write(sxi, bloc, Charset.forName("UTF-8"));
 				sxList.add("S"+i);
@@ -31,6 +31,7 @@ public class Split {
 				bloc = new ArrayList<String>();
 			}
 		}
+		System.out.println("Created "+sxList.size()+" splits to send.");
 		return sxList;
 	}
 }

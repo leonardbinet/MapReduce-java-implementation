@@ -46,7 +46,7 @@ public class SshCommand extends Thread{
 		this.response = new ArrayList<String>();
 	}
 	
-	public void affiche(String texte){
+	public void show(String texte){
 		System.out.println("[SSH "+machine+"] "+texte);
 	}
 	
@@ -73,9 +73,9 @@ public class SshCommand extends Thread{
             		if(s.contains("OK")){
                 		connection_status = true;
                 	}
-                	affiche(s);
             	}
-            	
+            	// affiche(s);
+
             	this.response.add(s);
             	s = standard_output.poll(this.networkConfig.timeout, TimeUnit.SECONDS);
             }
@@ -83,7 +83,10 @@ public class SshCommand extends Thread{
             s = null;
             s = error_output.poll(this.networkConfig.timeout, TimeUnit.SECONDS);
             while(s!=null && !s.equals("ENDOFTHREAD")){
-            	affiche(s);
+            	if (! this.sshTest){
+            		// do not print errors for ssh tests
+                	show(s);
+            	}
             	this.response.add(s);
             	s = error_output.poll(this.networkConfig.timeout, TimeUnit.SECONDS);
             }

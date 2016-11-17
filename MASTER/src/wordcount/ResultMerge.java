@@ -13,23 +13,20 @@ import java.util.regex.Pattern;
 
 import main.Utils;
 
-public class Result {
+public class ResultMerge {
 	
-	private Path folderResult;
-	private ArrayList<ReduceResult> rmx_final;
+	private ArrayList<ReduceResult> rmxs;
 	private List<String> filtered_words;
 	
-	public Result(Path folderResult, ArrayList<ReduceResult> rmx_final){
-		this.folderResult = folderResult;
-		this.rmx_final = rmx_final;
+	public ResultMerge(ArrayList<ReduceResult> rmxs){
+		this.rmxs = rmxs;
 	}
 	
-	public void write_rmx() throws IOException{
+	public void writeResult(Path folderResult) throws IOException{
 		Utils.printBeautiful("Results");
-		Path rmxFolder = this.folderResult;
-		Path output = rmxFolder.resolve("Results.txt");
+		Path output = folderResult.resolve("Results.txt");
 		ArrayList<String> converted = new ArrayList<String>();
-		for (ReduceResult resultat :this.rmx_final){
+		for (ReduceResult resultat :this.rmxs){
 			converted.add(resultat.toString());
 		}
 		Files.write(output, converted, Charset.forName("UTF-8"));
@@ -37,8 +34,8 @@ public class Result {
 
 	public ArrayList<ReduceResult> get_rmx_ordered(){
 		
-		Collections.sort(this.rmx_final, result_comp);
-		return this.rmx_final;
+		Collections.sort(this.rmxs, result_comp);
+		return this.rmxs;
 	}
 
 	public void set_filtered_words(List<String> filtered_words){
@@ -47,7 +44,7 @@ public class Result {
 	
 	public ArrayList<ReduceResult> getFilteredResults(){
 		ArrayList<ReduceResult> filtered_result = new ArrayList<ReduceResult>();
-		for (ReduceResult entry: this.rmx_final){
+		for (ReduceResult entry: this.rmxs){
 			if (! this.filtered_words.contains(entry.key)){
 				filtered_result.add(entry);
 			}

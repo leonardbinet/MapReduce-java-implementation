@@ -49,7 +49,7 @@ public class MapOrder {
 				String machine = machineList.get(k % this.machineList.size());
 				umx_machine.put("Um"+id, machine);
 				
-				System.out.println("Envoi de "+split+" à la machine "+machine+" devant nous renvoyer Um"+id);
+				// System.out.println("Send "+split+" to machine "+machine+" => Um"+id);
 				
             	String command = "cd "+this.slaveJarLocation+";java -jar SLAVE.jar modeSXUMX S"+id;
 				SshCommand slave = new SshCommand(this.networkConfig, machine, command, false);
@@ -73,7 +73,7 @@ public class MapOrder {
                 }
             }	
 		}
+		System.out.println("Received "+umx_keys.size()+" responses.");
 		return umx_keys;
-		
 	}
 }

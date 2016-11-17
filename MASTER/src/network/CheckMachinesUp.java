@@ -43,6 +43,7 @@ public class CheckMachinesUp {
 			}
 		}
 		this.respondingMachines = respondingMachines;
+		System.out.println(respondingMachines.size()+" machine(s) responding out of "+this.machinesToTest.size()+".");
 	}
 	
 	public ArrayList<String> get_Machines_Up(){

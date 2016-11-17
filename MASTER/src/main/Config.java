@@ -24,7 +24,7 @@ public class Config {
 	public Config(){
 		this.filteredWords = Arrays.asList("le","la","les","je","du","de","des","ou","nous","vous","leur","eux","et","ne","l","à","en","par","ses","ce","son","un","une");
 		this.slaveJarLocation = Paths.get("/cal/homes/lbinet/workspace/Sys_distribue/"); 
-		this.linesPerSplit = 50;
+		this.linesPerSplit = 10;
 		this.masterJobsPath = Paths.get("/cal/homes/lbinet/workspace/Sys_distribue/Jobs/");
 		this.folderSx = this.masterJobsPath.resolve("Sx/");
     	this.folderUmx = this.masterJobsPath.resolve("Umx/");

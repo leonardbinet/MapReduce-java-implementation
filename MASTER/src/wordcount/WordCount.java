@@ -10,7 +10,7 @@ import main.Config;
 import main.Utils;
 import network.CheckMachinesUp;
 import network.NetworkConfig;
-import wordcount.Result.ReduceResult;
+import wordcount.ResultMerge.ReduceResult;
 
 public class WordCount {
 	
@@ -78,8 +78,8 @@ public class WordCount {
 
 		startStepTime = System.currentTimeMillis();
 
-		Result result = new Result(this.config.folderResult, rmx_final);
-		result.write_rmx();
+		ResultMerge result = new ResultMerge(rmx_final);
+		result.writeResult(this.config.folderResult);
 		result.set_filtered_words(config.filteredWords);
 		System.out.println("\nResult: \n" + result.get_rmx_ordered().toString());
 		System.out.println("\nFiltered result: \n" + result.getFilteredResults().toString());

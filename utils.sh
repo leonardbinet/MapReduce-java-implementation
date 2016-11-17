@@ -43,7 +43,7 @@ then
 elif [ $1 = "run" ]
 then
     echo "Lancement du script: run"
-    ssh telecom "ssh -i .ssh/intra_telecom -o StrictHostKeyChecking=no "$machine" 'cd "$racine" && java -jar MASTER.jar "$input"'"
+    ssh telecom "ssh -i /cal/homes/lbinet/.ssh/intra_telecom -o StrictHostKeyChecking=no "$machine" 'cd "$racine" && java -jar MASTER.jar "$input"'"
 elif [ $1 = "runslave" ]
 then
     echo "Lancement du script: "

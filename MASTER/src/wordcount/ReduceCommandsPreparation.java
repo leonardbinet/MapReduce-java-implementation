@@ -34,6 +34,7 @@ public class ReduceCommandsPreparation {
 			machine_command.add(temp);
 			i += 1;
 		}
+		System.out.println("Created "+machine_command.size()+" commands to send.");
 		return machine_command;
 	}
 }
