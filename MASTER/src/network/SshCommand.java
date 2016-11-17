@@ -7,16 +7,20 @@ import java.util.concurrent.TimeUnit;
 
 public class SshCommand extends Thread{
 	
+	// Network config
+	private NetworkConfig networkConfig;
+	
+	// Other
 	private String machine;
 	private String command;
-	private int timeout;
+	private Boolean sshTest;
+
+	// Reponse
 	private ArrayBlockingQueue<String> standard_output = new ArrayBlockingQueue<String>(1000);
 	private ArrayBlockingQueue<String> error_output = new ArrayBlockingQueue<String>(1000);
 	private ArrayList<String> response;
 	private boolean connection_status = false;
-	private Boolean sshTest;
 
-	
 	public String getMachine() {
 		return machine;
 	}
@@ -29,10 +33,10 @@ public class SshCommand extends Thread{
 		return connection_status;
 	}
 
-	public SshCommand(Boolean sshTest, String machine, String command, int timeout){
+	public SshCommand(NetworkConfig networkConfig, String machine, String command, boolean sshTest){
 		this.sshTest = sshTest;
 		this.machine = machine;
-		this.timeout = timeout;
+		this.networkConfig = networkConfig;
 		if (sshTest){
 			this.command = "echo OK";
 		}
@@ -48,7 +52,12 @@ public class SshCommand extends Thread{
 	
 	public void run(){
 	 try {
-         String[] fullCommand = {"ssh","-o StrictHostKeyChecking=no",this.machine, this.command};
+         String[] fullCommand = {
+        		 "ssh",
+        		 "-i",this.networkConfig.sshKeyPath,
+        		 "-o","StrictHostKeyChecking=no",
+        		 this.networkConfig.sshUser+"@"+this.machine, 
+        		 this.command};
             ProcessBuilder pb = new ProcessBuilder(fullCommand);
             Process p = pb.start();
             StreamReader fluxSortie = new StreamReader(p.getInputStream(), standard_output);
@@ -57,7 +66,7 @@ public class SshCommand extends Thread{
             new Thread(fluxSortie).start();
             new Thread(fluxErreur).start();
 
-            String s = standard_output.poll(timeout, TimeUnit.SECONDS);
+            String s = standard_output.poll(this.networkConfig.timeout, TimeUnit.SECONDS);
             while(s!=null && !s.equals("ENDOFTHREAD")){
             	
             	if (this.sshTest){
@@ -68,15 +77,15 @@ public class SshCommand extends Thread{
             	}
             	
             	this.response.add(s);
-            	s = standard_output.poll(timeout, TimeUnit.SECONDS);
+            	s = standard_output.poll(this.networkConfig.timeout, TimeUnit.SECONDS);
             }
             
             s = null;
-            s = error_output.poll(timeout, TimeUnit.SECONDS);
+            s = error_output.poll(this.networkConfig.timeout, TimeUnit.SECONDS);
             while(s!=null && !s.equals("ENDOFTHREAD")){
             	affiche(s);
             	this.response.add(s);
-            	s = error_output.poll(timeout, TimeUnit.SECONDS);
+            	s = error_output.poll(this.networkConfig.timeout, TimeUnit.SECONDS);
             }
             
         } catch (IOException e) {

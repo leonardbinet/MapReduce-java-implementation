@@ -7,11 +7,12 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
+import main.Utils;
+
 public class CleanImport {
 
 	public static ArrayList<String> cleanImport(Path inputPath) throws IOException {
-		System.out.println("---------------------------------\n" + "IMPORT AND CLEAN INPUT\n"
-				+ "---------------------------------");
+		Utils.printBeautiful("Clean import");
 		List<String> lignes = new ArrayList<String>();
 		ArrayList<String> lignes_clean = new ArrayList<String>();
 		lignes = Files.readAllLines(inputPath, Charset.forName("UTF-8"));

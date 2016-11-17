@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import main.Utils;
+import network.NetworkConfig;
 import network.SshCommand;
 import wordcount.Result.ReduceResult;
 
@@ -19,10 +20,12 @@ public class ReduceOrder {
 	private HashMap<String, String> rmx_machine;
 	private ArrayList<ReduceResult> rmx_final;
 	private ArrayList<String> rmx_final_raw;
+	private NetworkConfig networkConfig;
 
-	public ReduceOrder(ArrayList<List<String>> machine_command, ArrayList<String> machineList){
+	public ReduceOrder(NetworkConfig networkConfig,ArrayList<List<String>> machine_command, ArrayList<String> machineList){
 		this.machine_command = machine_command;
 		this.machineList = machineList;
+		this.networkConfig = networkConfig;
 	}
 	
 	public void setSlaveLocation(Path slaveJarLocation){
@@ -49,9 +52,10 @@ public class ReduceOrder {
             for (List<String>  entry: machine_command_to_compute) {
 				System.out.println("Envoi de la commande "+ entry.get(1)+" à la machine "+entry.get(0)+".");
             	SshCommand slave = new SshCommand(
-            			false, 
+            			this.networkConfig, 
             			entry.get(0),
-                        "cd "+this.slaveJarLocation+";java -jar SLAVE.jar "+entry.get(1), timeout);
+                        "cd "+this.slaveJarLocation+";java -jar SLAVE.jar "+entry.get(1), 
+            			false);
                 slave.start();
                 slaves_dict.put(slave,entry);
                 limit -= 1;

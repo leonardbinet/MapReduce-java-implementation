@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import network.NetworkConfig;
 import network.SshCommand;
 import main.Utils;
 
@@ -13,24 +14,26 @@ public class MapOrder {
 	private ArrayList<String> splitsToSend;
 	private ArrayList<String> machineList;
 	private Path slaveJarLocation;
+	private NetworkConfig networkConfig;
 	
-	public MapOrder(ArrayList<String> splitsToSend, ArrayList<String> machineList ){
+	public MapOrder(ArrayList<String> splitsToSend, ArrayList<String> machineList,NetworkConfig networkConfig ){
 		this.splitsToSend= splitsToSend;
 		this.machineList = machineList;
+		this.networkConfig = networkConfig;
 	}
 	
 	public void setSlaveLocation(Path slaveJarLocation){
 		this.slaveJarLocation = slaveJarLocation;
 	}
 	
-	public HashMap<String, ArrayList<String>> send(Integer timeout, Integer maxThreadPerMachine){
+	public HashMap<String, ArrayList<String>> send(){
 		Utils.printBeautiful("Map");
 		
 		/* cette méthode créé le dictionnaire Umx-machines
 		// idéalement on réalise un scp pour envoyer les fichiers (ici on triche)
 		// Initialisation de notre dictionnaire (qui trace ce que l'on a envoyé)
 		*/
-		Integer maxThreads = this.machineList.size()*maxThreadPerMachine;
+		Integer maxThreads = this.machineList.size()*this.networkConfig.maxThreadsPerMachine;
 		HashMap<String,String> umx_machine = new HashMap<String,String>();
 		HashMap<String, ArrayList<String>> machine_keys = new HashMap<String, ArrayList<String>>();
 		HashMap<String, ArrayList<String>> umx_keys = new HashMap<String, ArrayList<String>>();
@@ -49,7 +52,7 @@ public class MapOrder {
 				System.out.println("Envoi de "+split+" à la machine "+machine+" devant nous renvoyer Um"+id);
 				
             	String command = "cd "+this.slaveJarLocation+";java -jar SLAVE.jar modeSXUMX S"+id;
-				SshCommand slave = new SshCommand(false, machine, command, timeout);
+				SshCommand slave = new SshCommand(this.networkConfig, machine, command, false);
                 slave.start(); 
                 slaves_dict.put(slave,id);
 			}

@@ -103,38 +103,75 @@ Les étapes sont explicitées, et on peut observer quand des commandes n'ont pas
   - factoriser code LaunchSlave et ConnectSSH
 
 ## Arborescence
+
+### Code source
 ```
-├── Input
-│   ├── Input.txt
-│   ├── deontologie_police_nationale.txt
-│   ├── domaine_public_fluvial.txt
-│   └── forestier_mayotte.txt
+
+├── MASTER
+│   └── src
+│       ├── main
+│       │   ├── Config.java
+│       │   ├── Main.java
+│       │   └── Utils.java
+│       ├── network
+│       │   ├── CheckMachinesUp.java
+│       │   ├── SshCommand.java
+│       │   └── StreamReader.java
+│       └── wordcount
+│           ├── CleanImport.java
+│           ├── MapOrder.java
+│           ├── ReduceCommandsPreparation.java
+│           ├── ReduceOrder.java
+│           ├── Result.java
+│           ├── ReverseIndex.java
+│           ├── Split.java
+│           └── WordCount.java
+├── SLAVE
+│   ├── bin
+│   │   ├── main
+│   │   │   ├── Config.class
+│   │   │   ├── Main.class
+│   │   │   └── Utils.class
+│   │   └── operations
+│   │       ├── Mapping.class
+│   │       └── Reducing.class
+│   └── src
+│       ├── main
+│       │   ├── Config.java
+│       │   ├── Main.java
+│       │   └── Utils.java
+│       └── operations
+│           ├── Mapping.java
+│           └── Reducing.java
+
+```
+### Fichiers créés lors d'un job
+```
+
 ├── Jobs
 │   ├── Result
 │   ├── Rmx
 │   ├── Smx
 │   ├── Sx
 │   └── Umx
+
+```
+### Autres documents
+```
+├── Input
+│   ├── Input.txt
+│   ├── deontologie_police_nationale.txt
+│   ├── domaine_public_fluvial.txt
+│   └── forestier_mayotte.txt
 ├── Logs
 │   ├── log-domaine_public_fluvial.txt
 │   ├── log-forestier_mayotte.txt
 │   └── log-input.txt
-├── MASTER
-│   └── src
-│       ├── AlgoMaster.java
-│       ├── CheckMachinesUp.java
-│       ├── Config.java
-│       ├── ConnectSSH.java
-│       ├── LaunchSlave.java
-│       ├── LecteurFlux.java
-│       └── Main.java
 ├── MASTER.jar
 ├── README.md
-├── SLAVE
-│   └── src
-│       ├── Config.java
-│       └── Main.java
 ├── SLAVE.jar
 ├── liste_machines.txt
+├── pictures
+│   └── MapReduce.png
 └── utils.sh
 ```

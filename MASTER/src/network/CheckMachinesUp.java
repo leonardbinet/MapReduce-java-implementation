@@ -6,14 +6,16 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
+import main.Utils;
+
 public class CheckMachinesUp {
 
 	private List<String> machinesToTest;
 	private ArrayList<String> respondingMachines;
-	private Integer timeout;
+	private NetworkConfig networkConfig;
 	
-	public CheckMachinesUp(Integer timeout){
-		this.timeout = timeout;
+	public CheckMachinesUp(NetworkConfig networkConfig){
+		this.networkConfig = networkConfig;	
 	}
 	
 	public void readMachinesToTest(Path path) throws IOException{
@@ -24,16 +26,13 @@ public class CheckMachinesUp {
 	}
 	
 	public void test_Machines_Up() throws IOException, InterruptedException{
-		System.out.println(
-				"---------------------------------\n"
-				+ "CHECK MACHINES UP\n"
-				+ "---------------------------------");
+		Utils.printBeautiful("Machine test");
 		ArrayList<SshCommand> sshTestList = new ArrayList<SshCommand>();
 		
 		for (String machineToTest : this.machinesToTest) {
-			SshCommand test = new SshCommand(true, machineToTest,"test ssh", this.timeout);
-			test.start();
-			sshTestList.add(test);
+			SshCommand sshCommand = new SshCommand(this.networkConfig, machineToTest,"test ssh", true);
+			sshCommand.start();
+			sshTestList.add(sshCommand);
 		}
 		
 		ArrayList<String> respondingMachines = new ArrayList<String>();
