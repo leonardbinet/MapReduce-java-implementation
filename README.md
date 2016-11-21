@@ -150,7 +150,7 @@ If more than 4 SHH connections are launched on the same machine, SSH connections
 ## How to run
 From the folder containing the MASTER.jar file:
 ```
- - java -jar MASTER.jar fichier_input.txt
+ - java -jar MASTER.jar input_file.txt
 ```
 
 ### Requirements
@@ -213,14 +213,6 @@ ERROR: machine C129-07 commande: cd /cal/homes/lbinet/workspace/Sys_distribue;ja
 │           ├── Split.java
 │           └── WordCount.java
 ├── SLAVE
-│   ├── bin
-│   │   ├── main
-│   │   │   ├── Config.class
-│   │   │   ├── Main.class
-│   │   │   └── Utils.class
-│   │   └── operations
-│   │       ├── Mapping.class
-│   │       └── Reducing.class
 │   └── src
 │       ├── main
 │       │   ├── Config.java
