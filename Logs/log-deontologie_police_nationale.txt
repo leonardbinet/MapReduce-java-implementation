@@ -1,0 +1,50 @@
+Connexion sur ssh.enst.fr puis sur C133-01 si besoin
+Lancement du script: run
+---------------------------------
+LAUNCH PROGRAMM ON INPUT/DEONTOLOGIE_POLICE_NATIONALE.TXT
+---------------------------------
+---------------------------------
+MACHINE TEST
+---------------------------------
+26 machine(s) responding out of 36.
+---Time: 2100 ---
+---------------------------------
+CLEAN IMPORT
+---------------------------------
+---Time: 59 ---
+---------------------------------
+SPLIT
+---------------------------------
+File to send contains 60 lines.
+Created 60 splits to send.
+---Time: 282 ---
+---------------------------------
+MAP
+---------------------------------
+Received 60 responses.
+---Time: 1626 ---
+---------------------------------
+REDUCE COMMANDS PREPARATION
+---------------------------------
+Created 379 commands to send.
+---Time: 9 ---
+---------------------------------
+REDUCE
+---------------------------------
+-------
+ERROR: machine C133-05 commande: cd /cal/homes/lbinet/workspace/Sys_distribue;java -jar SLAVE.jar modeUMXSMX article SM281 Um38 Um56 Um48 Um46 Um34 Um35 Um44 Um36 Um42 Um30 Um32 Um50 Um52 Um20 Um14 Um22 Um24 Um18 Um16 Um28
+=> New try
+------
+Received 379 elements.
+---Time: 7162 ---
+---------------------------------
+RESULTS
+---------------------------------
+
+Result: 
+[de 98, la 51, police 38, et 36, des 33, le 27, à 25, les 24, nationale 20, article 20, est 13, titre 13, en 13, ou 12, qui 11, lautorité 10, fonctionnaires 10, code 9, par 9, aux 9, fonctionnaire 9, du 8, commandement 8, ses 8, leur 8, déontologie 7, au 7, ne 7, devoirs 7, il 7, a 6, dans 6, cas 5, sa 5, ordres 5, si 5, se 5, faire 5, sont 5, pour 5, tout 5, lordre 5, doit 4, un 4, droits 4, personnes 4, public 4, missions 4, pas 4, exécution 4, elle 4, personne 4, subordonné 4, responsabilité 4, sous 3, fonctions 3, generaux 3, autorites 3, hiérarchique 3, être 3, ce 3, ordre 3, ier 3, présent 3, règles 3, donné 3, respectifs 3, iii 3, échéant 3, son 3, leurs 3, preliminaire 3, quil 3, controle 3, contrôle 3, ii 3, responsable 2, aucune 2, tenu 2, actes 2, loi 2, lorsquil 2, nature 2, conditions 2, judiciaire 2, aucun 2, part 2, respect 2, pénale 2, cette 2, acte 2, citoyen 2, sans 2, lintérieur 2, lui 2, table 2, dune 2, lois 2, service 2, que 2, réserve 2, porter 2, nest 2, fait 2, générale 2, auteur 2, envers 2, institutions 2, dont 2, conséquences 2, appliquer 2, engage 2, linspection 2, ministre 2, contre 2, voie 2, protéger 2, disciplinaire 2, explications 2, ont 2, protection 2, placée 2, toute 2, personnels 2, ils 2, devoir 2, peut 2, biens 2, philosophiques 1, sacquitte 1, manquement 1, rendre 1, particulier 1, traitement 1, convictions 1, mesures 1, illégal 1, lindividu 1, eux 1, soins 1, résultant 1, lintéressé 1, connaissance 1, lieu 1, victimes 1, procédure 1, danger 1, hors 1, république 1, administratives 1, prévues 1, limites 1, place 1, néglige 1, bonne 1, sagissant 1, propre 1, lorsquelle 1, absolu 1, troubler 1, régulièrement 1, outrages 1, échelons 1, doivent 1, intermédiaires 1, libertés 1, fonctionnelle 1, discrétion 1, lurgence 1, initiative 1, fixées 1, donne 1, serait 1, subir 1, celui 1, rien 1, servir 1, français 1, assortis 1, maintien 1, violence 1, menaces 1, gravement 1, organisée 1, dun 1, appel 1, impossible 1, dintervenir 1, permet 1, accomplit 1, placé 1, présence 1, été 1, utiliser 1, transmet 1, préjudice 1, où 1, réprimer 1, défend 1, condition 1, compromettre 1, loccasion 1, expose 1, signification 1, sommaire 1, refus 1, ladministration 1, sanction 1, tiers 1, internationales 1, contestation 1, reçues 1, quun 1, chambre 1, sapplique 1, peines 1, atteintes 1, trouver 1, politiques 1, strictement 1, religieuses 1, constitution 1, instructions 1, exerce 1, pouvoir 1, croit 1, traduit 1, sil 1, personnel 1, pris 1, également 1, impartial 1, supérieure 1, départit 1, cesser 1, compétente 1, proportionné 1, manifestement 1, indiquant 1, soient 1, manière 1, persiste 1, générales 1, réfère 1, réquisition 1, laquelle 1, garde 1, garantie 1, sur 1, simpose 1, seuls 1, intérêt 1, subordonnés 1, vie 1, donnés 1, diffamations 1, légalement 1, lorsquils 1, cadre 1, atteindre 1, prohibés 1, médical 1, usage 1, autorité 1, répondrait 1, nécessaire 1, joindre 1, dignité 1, inexécution 1, peuvent 1, lhomme 1, appelées 1, conformer 1, loyalement 1, discipline 1, concourt 1, dexécuter 1, défense 1, comporte 1, possibilité 1, posées 1, entière 1, investie 1, charge 1, nationalité 1, rendu 1, républicaines 1, tel 1, dégradant 1, librement 1, concerne 1, lobligation 1, linterprétation 1, cidessus 1, armes 1, reçus 1, litigieux 1, spéciaux 1, voies 1, exécuter 1, autorités 1, objections 1, appréhendée 1, décisions 1, une 1, expressément 1, nentreprend 1, délai 1, quelles 1, nécessaires 1, santé 1, compte 1, paix 1, force 1, lensemble 1, prévenir 1, commandent 1, informés 1, demeure 1, conventions 1, raisons 1, accomplissent 1, précis 1, assistance 1, dagir 1, but 1, soumis 1, maintenu 1, témoin 1, même 1, ni 1, territoire 1, collectivité 1, règlements 1, circonstance 1, dagissements 1, sétend 1, prend 1, opposition 1, autorisé 1, lexercice 1, sauf 1, violences 1, participer 1, secret 1, déclaration 1, linstruction 1, létat 1, illégale 1, intègre 1, quelle 1, suivre 1, outre 1, sociale 1, lexécution 1, première 1, prendre 1, injures 1, attache 1, origine 1, ayant 1, données 1, nécessite 1, malgré 1, satisfaisant 1, tenus 1, hiérarchiquement 1, celuici 1, loyal 1, inhumain 1, relatives 1, définis 1, relève 1, professionnels 1, matières 1, plan 1, sexprimer 1, ouverte 1, exemplaire 1]
+
+Filtered result: 
+[police 38, nationale 20, article 20, est 13, titre 13, qui 11, lautorité 10, fonctionnaires 10, code 9, aux 9, fonctionnaire 9, commandement 8, déontologie 7, au 7, devoirs 7, il 7, a 6, dans 6, cas 5, sa 5, ordres 5, si 5, se 5, faire 5, sont 5, pour 5, tout 5, lordre 5, doit 4, droits 4, personnes 4, public 4, missions 4, pas 4, exécution 4, elle 4, personne 4, subordonné 4, responsabilité 4, sous 3, fonctions 3, generaux 3, autorites 3, hiérarchique 3, être 3, ordre 3, ier 3, présent 3, règles 3, donné 3, respectifs 3, iii 3, échéant 3, leurs 3, preliminaire 3, quil 3, controle 3, contrôle 3, ii 3, responsable 2, aucune 2, tenu 2, actes 2, loi 2, lorsquil 2, nature 2, conditions 2, judiciaire 2, aucun 2, part 2, respect 2, pénale 2, cette 2, acte 2, citoyen 2, sans 2, lintérieur 2, lui 2, table 2, dune 2, lois 2, service 2, que 2, réserve 2, porter 2, nest 2, fait 2, générale 2, auteur 2, envers 2, institutions 2, dont 2, conséquences 2, appliquer 2, engage 2, linspection 2, ministre 2, contre 2, voie 2, protéger 2, disciplinaire 2, explications 2, ont 2, protection 2, placée 2, toute 2, personnels 2, ils 2, devoir 2, peut 2, biens 2, philosophiques 1, sacquitte 1, manquement 1, rendre 1, particulier 1, traitement 1, convictions 1, mesures 1, illégal 1, lindividu 1, soins 1, résultant 1, lintéressé 1, connaissance 1, lieu 1, victimes 1, procédure 1, danger 1, hors 1, république 1, administratives 1, prévues 1, limites 1, place 1, néglige 1, bonne 1, sagissant 1, propre 1, lorsquelle 1, absolu 1, troubler 1, régulièrement 1, outrages 1, échelons 1, doivent 1, intermédiaires 1, libertés 1, fonctionnelle 1, discrétion 1, lurgence 1, initiative 1, fixées 1, donne 1, serait 1, subir 1, celui 1, rien 1, servir 1, français 1, assortis 1, maintien 1, violence 1, menaces 1, gravement 1, organisée 1, dun 1, appel 1, impossible 1, dintervenir 1, permet 1, accomplit 1, placé 1, présence 1, été 1, utiliser 1, transmet 1, préjudice 1, où 1, réprimer 1, défend 1, condition 1, compromettre 1, loccasion 1, expose 1, signification 1, sommaire 1, refus 1, ladministration 1, sanction 1, tiers 1, internationales 1, contestation 1, reçues 1, quun 1, chambre 1, sapplique 1, peines 1, atteintes 1, trouver 1, politiques 1, strictement 1, religieuses 1, constitution 1, instructions 1, exerce 1, pouvoir 1, croit 1, traduit 1, sil 1, personnel 1, pris 1, également 1, impartial 1, supérieure 1, départit 1, cesser 1, compétente 1, proportionné 1, manifestement 1, indiquant 1, soient 1, manière 1, persiste 1, générales 1, réfère 1, réquisition 1, laquelle 1, garde 1, garantie 1, sur 1, simpose 1, seuls 1, intérêt 1, subordonnés 1, vie 1, donnés 1, diffamations 1, légalement 1, lorsquils 1, cadre 1, atteindre 1, prohibés 1, médical 1, usage 1, autorité 1, répondrait 1, nécessaire 1, joindre 1, dignité 1, inexécution 1, peuvent 1, lhomme 1, appelées 1, conformer 1, loyalement 1, discipline 1, concourt 1, dexécuter 1, défense 1, comporte 1, possibilité 1, posées 1, entière 1, investie 1, charge 1, nationalité 1, rendu 1, républicaines 1, tel 1, dégradant 1, librement 1, concerne 1, lobligation 1, linterprétation 1, cidessus 1, armes 1, reçus 1, litigieux 1, spéciaux 1, voies 1, exécuter 1, autorités 1, objections 1, appréhendée 1, décisions 1, expressément 1, nentreprend 1, délai 1, quelles 1, nécessaires 1, santé 1, compte 1, paix 1, force 1, lensemble 1, prévenir 1, commandent 1, informés 1, demeure 1, conventions 1, raisons 1, accomplissent 1, précis 1, assistance 1, dagir 1, but 1, soumis 1, maintenu 1, témoin 1, même 1, ni 1, territoire 1, collectivité 1, règlements 1, circonstance 1, dagissements 1, sétend 1, prend 1, opposition 1, autorisé 1, lexercice 1, sauf 1, violences 1, participer 1, secret 1, déclaration 1, linstruction 1, létat 1, illégale 1, intègre 1, quelle 1, suivre 1, outre 1, sociale 1, lexécution 1, première 1, prendre 1, injures 1, attache 1, origine 1, ayant 1, données 1, nécessite 1, malgré 1, satisfaisant 1, tenus 1, hiérarchiquement 1, celuici 1, loyal 1, inhumain 1, relatives 1, définis 1, relève 1, professionnels 1, matières 1, plan 1, sexprimer 1, ouverte 1, exemplaire 1]
+---Time: 37 ---
+---TOTAL TIME: 11275 ---

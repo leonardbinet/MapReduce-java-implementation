@@ -51,6 +51,13 @@ public class SshCommand extends Thread{
 	}
 	
 	public void run(){
+		Integer timeout;
+		if (this.sshTest){
+			timeout = this.networkConfig.test_timeout;
+		}
+		else{
+			timeout = this.networkConfig.timeout;
+		}
 	 try {
          String[] fullCommand = {
         		 "ssh",
@@ -66,7 +73,7 @@ public class SshCommand extends Thread{
             new Thread(fluxSortie).start();
             new Thread(fluxErreur).start();
 
-            String s = standard_output.poll(this.networkConfig.timeout, TimeUnit.SECONDS);
+            String s = standard_output.poll(timeout, TimeUnit.SECONDS);
             while(s!=null && !s.equals("ENDOFTHREAD")){
             	
             	if (this.sshTest){
@@ -81,7 +88,7 @@ public class SshCommand extends Thread{
             }
             
             s = null;
-            s = error_output.poll(this.networkConfig.timeout, TimeUnit.SECONDS);
+            s = error_output.poll(timeout, TimeUnit.SECONDS);
             while(s!=null && !s.equals("ENDOFTHREAD")){
             	if (! this.sshTest){
             		// do not print errors for ssh tests

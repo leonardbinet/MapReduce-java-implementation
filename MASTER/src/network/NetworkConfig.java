@@ -17,8 +17,8 @@ public class NetworkConfig {
 	public NetworkConfig(){
 		
 		this.maxThreadsPerMachine = 3;
-		this.timeout = 3; 
-		this.test_timeout = 3; 
+		this.timeout = 2; 
+		this.test_timeout = 1; 
     	this.machinesToTestPath = Paths.get("liste_machines.txt");
     	this.machinesRespondingPath =Paths.get("liste_machines_OK.txt");
     	this.sshUser = "lbinet";

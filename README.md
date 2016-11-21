@@ -1,110 +1,196 @@
-# Implémentation de Map Reduce en Java
+# My MapReduce implementation, in Java
 
-## Fonctionnement:
 
-### Principes
-On cherche à distribuer une tâche sur plusieurs machines. Nous disposons d'une machine "Master" qui envoie des tâches aux machines "Slaves" via des commandes SSH.
+## Goal
+The goal of this project is to implement in Java a "word count" in MapReduce. The "word count" is a program aiming to count the occurrences number of each word of a file, and the MapReduce implementation do these operations into distributed computing on a cluster of machines.
 
-On se base ici sur le fonctionnement de MapReduce, qui consiste à faire réaliser par la machine 'Master' des opérations de Map et de Reduce à nos machines 'Slaves'.
 
-L'opération réalisée ici est un word count. On doit simplement donner en paramètre le chemin du fichier dont on cherche à compter les mots lors du lancement du programme.
 
 ![MapReduce](pictures/MapReduce.png)  
 
-#### Configuration
-Le code est en java, compilé en 1.7 (version machines de Telecom), et génère un jar MASTER et un jar SLAVE, respectivement sur le master et sur les slaves.
-
-Pour les connections SSH il faut avoir créé en amont des clés RSA pour permettre au Master de se connecter aux Slaves sans mot de passe (ici c'est facile à réaliser car les machines partagent toutes le même file-system).
-
-Par ailleurs, j'ai également créé des clés RSA entre mon ordinateur personnel 'client', et l'ordinateur de l'école 'master' afin de pouvoir lancer le MASTER.jar sur un ordinateur de l'école depuis mon ordinateur personnel.
-
-Pour faciliter le lancement d'opérations depuis mon ordinateur personnel, j'ai créé un script shell contenant plusieurs commandes (transfert scp des jars, mise à jour via git, purger les fichiers créés, etc).
-
-Pour clarifier le code, j'ai choisi de créer une classe configuration pour le Master, avec plusieurs paramètres dont (non exhaustif):
-- le nombre maximum de threads lancés par machine
-- le timeout lors du test de connexion SSH
-- le timeout lors des requêtes du master vers les slaves
-- le nombre de lignes par bloc lors de la phase de split.
-- les mots à ne pas prendre en compte dans le word count.
-- le chemin absolu du dossier où se trouve le jar Master sur la machine master
-- les chemins des fichiers générés lors du job
-
-De même il y a une config Slave avec les lieux des fichiers de job.
+The MapReduce is running into a simple network architecture: a Master and several Slaves (Workers). Master role is to manage and launch programm remotly. Workers role is to run tasks launched by the Master.
 
 
-### Etapes
 
-#### Côté Master:
+## Architecture and configuration
 
- Prendre INPUT, faire l’INPUT splitting pour fabriquer les Sx.
+Code is separated in two jars, one Master.jar on the master machine. Slave.jar on each slave machine.
 
- Pour chaque Sx, lancer le traitement Split Mapping en parallèle (Sx -> UMx) et construire le dictionnaire “UMx - machines”
+Code can be launched by a client:
 
- Recevoir les “clés-UMx” issus du traitement Split Mapping et construire le dictionnaire “clés -UMx”
+![Architecture](pictures/Architecture.png)  
+*(do not take into account what's written in rectangles 'Job', 'JobTracker' etc, the aim of this picture is to show the client/master/slaves architecture)*
 
- Attendre la fin des traitements Split Mapping
+Network communications are done through the SSH protocol.
 
- Pour chaque clé du dictionnaire “clés-UMx”, lancer les traitements en parallèle shuffling maps  + reducing sorted maps  (UMx -> SMx + SMx -> RMx) et construire le dictionnaire “RMx - machines”
+For SSH connections, it is necessary to generate RSA keys so that the master can control slaves without password. In this configuration, it is easy to do since all machines share the same file-system.
 
- Recevoir les RMx
+I also created RSA keys, so that I can control all machines from my personal computer, the 'client' machine.
 
- Attendre la fin des traitements
+I created a shell script to launch quickly some commands on remote computers (scp transfers, git commands, run commands etc).
 
- Fusionner les RMx dans un fichier résultat final
+Some configuration parameters are stored in Config classes so that it is simple to manage, for instance:
+- max number of threads per machine
+- number of lines per block
+- jars location on machines
+- job generated files locations on machines
 
-#### Côté Slaves
 
-Deux modes de réception de commandes:
- - modeSXUMX pour les opérations de mapping
- - modeUMXSMX pour les opérations de reducing
+### Steps
 
-## Spécificités
-S'il n'y a pas de réponse d'un slave (map ou reduce) au bout d'un certain temps, la commande est relancée sur la même machine ou sur une autre.
+#### Master Side:
 
-J'ai choisi de prendre un timout plus court, et en contrepartie de gérer les cas où une machine ne réponde pas dans le temps imparti. Cela permet d'aller plus vite.
+**Initialization step :** the master checks which machines are up and responding.
 
-J'ai remarqué que si l'on lançait plus de 5 jobs simultanément sur une machine, la connexion SSH était fermée par mesure de sécurité. Je l'ai laissé à 4 pour plus de stabilité.
+**Clean import step :** the master loads the specified file and cleans it (special characters and empty lines).
+```
+Hello all this is an example of
+input of many lines
+..
+..
+..
+There's some special characters!
+```
+becomes:
+```
+hello all this is an example of
+input of many lines
+..
+..
+..
+theres some special characters
+```
 
-## Lancement
-Depuis le dossier contenant le MASTER.jar sur le master:
+**Input splitting step :** the master split the file by blocs. Each bloc is send to the mapper worker for the next step.
+The file's name syntax : "Sx", where x is a counter.
+
+The number of lines per block is defined in the Config class.
+
+A `Sx` file can contain:
+```
+hello all this is an example of
+block of two lines
+```
+
+**Send Mapping Orders step :** each "Sx" bloc is sent to a worker to be mapped into an unsorted map "Umx".
+
+If there are too many map operations to be computed in comparison to the number of responding machines, orders are sent by batch.
+
+By default, I defined a maximum of 4 simultaneous jobs by machine (can be changed in Config class). So the master send 4 orders by machine (if there are 10 machines responding, 40 jobs are sent). The master waits for 3 seconds (timeout can be changed in Config class) and the launch an other batch.
+If a job doesn't respond after 3 seconds, it is killed and launched back in the next batch.
+
+
+The resulting `Umx` can be:
+```
+hello 1
+all 1
+this 1
+is 1
+an 1
+example 1
+of 1
+block 1
+of 1
+two 1
+lines 1
+```
+
+Note that the two `of 1` are kept separated.
+
+**Suffling step :**
+
+The `Umx - [keys]` dictionnary is reversed, into a `Key - [Umx]` dictionnary.
+
+Then corresponding commands are prepared for slaves.
+
+**Send Reducing Orders step :** the master sends orders and each reducer worker sum all the counters of the last step and sends to the master the number of occurence of each word (key), with key and number separated by a space.
+
+For instance, this can be sent by the slave:
+
+*Rm1*
+```
+car 4
+```
+*Rm2*
+```
+hello 2
+```
+
+**Result step :** it's the last step, the master merges all the Rm files in one, orders words by decreasing number of occurences and writes it.
+
+It then prints two results:
+ - one raw result
+ - one result with some common words sorted. (for example `the`, `a`, `an` etc..)
+
+*Result :*
+ ```
+ hello 26
+ all 14
+ this 10
+ is 5
+ an 5
+ example 3
+ ..
+ ..
+ ```
+
+
+#### Slaves side
+
+Slaves can handle two types of commands:
+ - modeSXUMX for mapping operations
+ - modeUMXSMX for reducing operations
+
+## Specificities
+
+If a Slave doesn't respond after specified timeout, command is launched in next batch of commands.
+
+If more than 4 SHH connections are launched on the same machine, SSH connections are closed by the slave. That's why the default value I chose is 4.
+
+## How to run
+From the folder containing the MASTER.jar file:
 ```
  - java -jar MASTER.jar fichier_input.txt
 ```
-### Prérequis
 
-Comme expliqué dans la configuration, il faudra que le SLAVE.jar soit situé à l'endroit spécifié dans la classe Config du Master (en effet le master doit savoir où est situé le SLAVE.jar pour pouvoir le lancer).
+### Requirements
 
-Par ailleurs il faut également que le master puisse accéder en ssh aux slaves sans mot de passe, c'est à dire avec un clé RSA générée en amont.
+**Network:**
 
-Il faut également créer en amont les dossiers qui vont recevoir les fichiers du job lancé (Sx Umx Smx Rmx Result).
+Generate RSA keys so that the Master machine can control Slave machines without hard-coded passwords.
 
-Finalement, il faut rendre disponible dans le même dossier que le MASTER.jar un fichier texte contenant une liste de machines à tester (liste_machines.txt).
+In the same folder as Master.jar, there must be a text file with hostnames of machines to control (Slaves).
 
-### Exemples
+**Configuration checks**
 
-J'ai mis les logs résulant de lancement du programme avec divers fichier d'input.
+Check in Config classes, that jars locations are set according to where you put files on your computers.
 
-Les paramètres étaient les suivants:
+Check also that ssh connection credentials are well set (Id file location and username).
+
+### Examples
+
+You can find in the log folder some outputs for different input files:
+
+Parameters were:
 ```
- - max_thread_per_machine = 3
+ - max_thread_per_machine = 4
  - timeout = 3
  - test_timeout = 3
- - lines_per_split = 50
+ - lines_per_split = 1
 ```
-Les étapes sont explicitées, et on peut observer quand des commandes n'ont pas abouti.
 
-## TODO:
+You can see when commands failed and were launched another time:
+```
+-------
+ERROR: machine C129-07 commande: cd /cal/homes/lbinet/workspace/Sys_distribue;java -jar SLAVE.jar modeUMXSMX conformément SM1145 Um251 Um191 Um173 Um247 Um236 Um30 Um240 Um102
+=> New try
+------
+```
 
-  - possibilité de trier les mots à ne pas prendre en compte en phase de shuffling
-  - déclarer machine HS si elle répond mal plusieurs fois
-  - rallonger timeout pour traitement de job s'il rate plus de 2 fois
-  - rajouter les phases de transfert de fichiers
-  - réaliser un vrai algo de shuffling pour minimiser les communications
-  - factoriser code LaunchSlave et ConnectSSH
 
-## Arborescence
+## Tree view
 
-### Code source
+### Source code
 ```
 
 ├── MASTER
@@ -145,7 +231,7 @@ Les étapes sont explicitées, et on peut observer quand des commandes n'ont pas
 │           └── Reducing.java
 
 ```
-### Fichiers créés lors d'un job
+### Files created during Job
 ```
 
 ├── Jobs
@@ -156,7 +242,7 @@ Les étapes sont explicitées, et on peut observer quand des commandes n'ont pas
 │   └── Umx
 
 ```
-### Autres documents
+### Others
 ```
 ├── Input
 │   ├── Input.txt
@@ -175,3 +261,14 @@ Les étapes sont explicitées, et on peut observer quand des commandes n'ont pas
 │   └── MapReduce.png
 └── utils.sh
 ```
+## TODO:
+
+  - ability to sort words before reduce operation
+  - set machine as OUT if doesn't answer twice
+  - set longer timeout if operation doesn't succeed on multiple machines
+  - scp operations
+  - shuffling algorithm to import
+  - add DEBUG mode
+  - take into account errors stemming from connection closing because of overload
+  - full english translation
+  - automatic directory creation and purge
